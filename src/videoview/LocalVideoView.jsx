@@ -36,7 +36,7 @@ class LocalVideoView extends React.Component {
       <div
         className={`local-${
           videoType === "localVideo" ? "video" : "screen"
-        }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1 bg-black`}
+        }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1`} style={{backgroundColor:'#1a1619'}}
       >
         <video
           ref={(ref) => {

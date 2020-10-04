@@ -301,7 +301,7 @@ class App extends React.Component {
     } = this.state
     return (
       <Layout className="app-layout">
-        <Header className="app-header" style={{ backgroundColor: "#434190" }}>
+        <Header className="app-header" style={{ backgroundColor: "#1a1619" }}>
           <div className="app-header-left">
             <a href="https://brytecam.dev" target="_blank">
               <img src={bLogo} className="app-logo-img" />
@@ -320,11 +320,11 @@ class App extends React.Component {
             <Layout className="app-content-layout">
               <Sider
                 width={320}
-                className="bg-indigo-600"
                 collapsedWidth={0}
                 trigger={null}
                 collapsible
                 collapsed={this.state.collapsed}
+                style={{backgroundColor:'#1a1619'}}
               >
                 <div className="left-container">
                   <ChatFeed
