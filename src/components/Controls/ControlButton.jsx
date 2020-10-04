@@ -10,7 +10,7 @@ const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
       >
         {isActive ? activeIcon : icon}
       </div>
-      <div className="py-1">
+      <div className="pt-1">
         <span className="text-xs text-indigo-100">{label}</span>
       </div>
     </button>

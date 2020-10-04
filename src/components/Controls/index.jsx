@@ -21,7 +21,7 @@ const Controls = ({
   onChatToggle
 }) => {
   return (
-    <div className="absolute w-full justify-center bottom-0 flex items-center">
+    <div className="h-16 bg-indigo-500 absolute w-full justify-center bottom-0 flex items-center py-1">
       <div className="mr-1">
         <ControlButton
           icon={<VideoIcon className="text-indigo-100" />}
@@ -61,7 +61,7 @@ const Controls = ({
       <div className="ml-1">
         <ControlButton
           icon={<VideoCheckIcon className="text-indigo-100" />}
-          activeIcon={<VideoCheckIcon text-red-100 />}
+          activeIcon={<VideoCheckIcon className="text-red-100" />}
           label="Chat"
           onClick={onChatToggle}
           isActive={isChatOpen}

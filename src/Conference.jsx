@@ -201,9 +201,14 @@ class Conference extends React.Component {
     let videoCount = streams.length
     if(localStream) videoCount++
     if(localScreen) videoCount++
+
+
+    console.log("LocalStream",localStream)
+    console.log("ScreenShare",localScreen)
+    console.log("STREAMS",streams)
     
     return (
-      <div className={`conference-layout absolute top-0 bottom-0 w-full flex flex-wrap bg-indigo-500 v${videoCount}`}>
+      <div className={`conference-layout absolute top-0 bottom-0 w-full flex flex-wrap bg-indigo-500 v${videoCount}`} style={{height:"calc(100vh - 128px)"}}>
         {/* {streams.length === 0 && (
           <div className="conference-layout-wating">
             <Spin size="large" tip="Wait for other people joining ..." />
