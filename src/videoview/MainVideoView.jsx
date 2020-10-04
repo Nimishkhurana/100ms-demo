@@ -11,9 +11,9 @@ class MainVideoView extends React.Component {
   }
 
   render = () => {
-    const { id, stream, vidFit } = this.props;
+    const { id, stream, vidFit,onClick } = this.props;
     return (
-      <div className="w-full max-w-full max-h-full flex justify-center items-center relative p-1">
+      <div className="w-full max-w-full max-h-full flex justify-center items-center relative p-1 bg-black" onClick={onClick}>
           <video
           ref={ref => {
             this.video = ref;

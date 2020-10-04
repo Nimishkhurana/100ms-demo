@@ -1,8 +1,15 @@
 import React from "react"
 import { Spin, notification } from "antd"
-import { LocalVideoView, MainVideoView, SmallVideoView } from "./videoview"
+
 import { Client, LocalStream, RemoteStream } from "brytecam-sdk-js"
 import "../styles/css/conference.scss"
+import { Gallery } from "./components/Conference/gallery"
+import { Pinned } from "./components/Conference/pinned"
+
+const modes = {
+  GALLERY: "GALLERY",
+  PINNED: "PINNED",
+}
 
 class Conference extends React.Component {
   constructor() {
@@ -13,6 +20,8 @@ class Conference extends React.Component {
       localScreen: null,
       audioMuted: false,
       videoMuted: false,
+      mode: modes.GALLERY,
+      pinned: false,
     }
   }
 
@@ -188,7 +197,7 @@ class Conference extends React.Component {
   }
 
   render = () => {
-    const { client, vidFit } = this.props
+    const { client } = this.props
     const {
       streams,
       localStream,
@@ -201,64 +210,40 @@ class Conference extends React.Component {
     if (localStream) videoCount++
     if (localScreen) videoCount++
 
-    return (
-      <div
-        className={`conference-layout absolute top-0 bottom-0 w-full flex flex-wrap bg-indigo-500 v${videoCount}`}
-        style={{ height: "calc(100vh - 128px)" }}
-      >
-        {localStream && (
-          <LocalVideoView
-            id={id + "-video"}
-            label="Local Stream"
-            client={client}
-            stream={localStream}
-            audioMuted={audioMuted}
-            videoMuted={videoMuted}
-            videoType="localVideo"
-          />
-        )}
-        {streams.map((item, index) => {
-          return (
-            <MainVideoView
-              key={item.mid}
-              id={item.mid}
-              stream={item.stream}
-              vidFit={vidFit}
-            />
-          )
-        })}
-
-        {localScreen && (
-          <LocalVideoView
-            id={id + "-screen"}
-            label="Screen Sharing"
-            client={client}
-            stream={localScreen}
-            audioMuted={false}
-            videoMuted={false}
-            videoType="localScreen"
-          />
-        )}
-        <div className="small-video-list-div">
-          <div className="small-video-list">
-            {streams.map((item, index) => {
-              return index > 0 ? (
-                <SmallVideoView
-                  key={item.mid}
-                  id={item.mid}
-                  stream={item.stream}
-                  videoCount={streams.length}
-                  collapsed={this.props.collapsed}
-                  index={index}
-                  onClick={this._onChangeVideoPosition}
-                />
-              ) : (
-                <div />
-              )
-            })}
-          </div>
-        </div>
-      </div>
+    return this.state.mode === modes.PINNED ? (
+      <Pinned
+        streams={streams}
+        audioMuted={audioMuted}
+        videoMuted={videoMuted}
+        videoCount={videoCount}
+        localStream={localStream}
+        localScreen={localScreen}
+        client={client}
+        id={id}
+        pinned={this.state.pinned}
+        onUnpin={()=>{
+          this.setState({
+            mode:modes.GALLERY
+          })
+        }}
+      />
+    ) : (
+      <Gallery
+        streams={streams}
+        audioMuted={audioMuted}
+        videoMuted={videoMuted}
+        videoCount={videoCount}
+        localStream={localStream}
+        localScreen={localScreen}
+        client={client}
+        id={id}
+        onPin={(streamId)=>{
+          this.setState({
+            mode:modes.PINNED,
+            pinned:streamId
+          })
+        }}
+      />
     )
   }
 }
