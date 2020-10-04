@@ -380,7 +380,7 @@ class App extends React.Component {
             <Layout className="app-content-layout">
               <Sider
                 width={320}
-                style={{ background: "#333" }}
+                className="bg-indigo-600"
                 collapsedWidth={0}
                 trigger={null}
                 collapsible
