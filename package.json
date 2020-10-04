@@ -32,9 +32,11 @@
     "webpack-dev-server": "3.11.0"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
     "antd": "^3.26.16",
     "brytecam-sdk-js": "^0.3.0",
     "copy-webpack-plugin": "^5.0.5",
+    "formik": "^2.1.7",
     "mdi-react": "^6.4.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
