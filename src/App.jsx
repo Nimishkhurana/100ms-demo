@@ -373,13 +373,10 @@ class App extends React.Component {
           ) : loading ? (
             <Spin size="large" tip="Connecting..." />
           ) : (
-            <Card title="Join Brytecam Videoconf" className="app-login-card">
-              <LoginForm
-                handleLogin={this._handleJoin}
-                createClient={this._createClient}
-              />
-            </Card>
-          )}
+            <div className="relative w-full mt-16">
+            <LoginForm handleLogin={this._handleJoin} createClient={this._createClient} />  
+          </div>
+      )}
         </Content>
       </Layout>
     )
