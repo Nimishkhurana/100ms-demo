@@ -1,5 +1,6 @@
-import { Button, Icon } from "antd"
 import React from "react"
+import PinIcon from "mdi-react/PinIcon"
+import PinOffIcon from "mdi-react/PinOffIcon"
 
 class LocalVideoView extends React.Component {
   constructor() {
@@ -53,12 +54,12 @@ class LocalVideoView extends React.Component {
             this.state.minimize ? minIconStyle : "local-video-icon-layout"
           }`}
         ></div>
-        <div className="absolute top-0 right-0 pt-2 w-full text-center">
-          <span className="px-2 py-1 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75">
+        <div className="absolute top-0 right-0 pt-2 w-full justify-center flex items-center">
+          <span className="px-2 py-1 bg-gray-800 rounded-md text-white inline-block bg-opacity-50 mr-1">
             {label}
           </span>
-          {onPin && <Button onClick={onPin}>Pin</Button>}
-          {onUnpin && <Button onClick={onUnpin}>Unpin</Button>}
+          {onPin && <button className="w-6 h-6 bg-gray-800 bg-opacity-50 hover:bg-indigo-500 rounded flex items-center justify-center" onClick={onPin}><PinIcon className="w-4 h-4 text-white" /></button>}
+          {onUnpin && <button className="w-6 h-6 bg-red-500 bg-opacity-50 hover:bg-red-600 rounded flex items-center justify-center" onClick={onUnpin}><PinOffIcon className="w-4 h-4 text-white" /></button>}
         </div>
       </div>
     )
