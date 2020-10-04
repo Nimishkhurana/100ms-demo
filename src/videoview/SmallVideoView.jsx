@@ -27,7 +27,7 @@ class SmallVideoView extends React.Component {
   };
 
   render = () => {
-    const { id, stream } = this.props;
+    const { id, stream,label } = this.props;
 
     return (
       <div onClick={this._handleClick} className="small-video-div">
@@ -42,7 +42,7 @@ class SmallVideoView extends React.Component {
           className="small-video-size"
         />
         <div className="small-video-id-div">
-          <a className="small-video-id-a">{stream.info.name}</a>
+          <a className="small-video-id-a">{label || stream.info.name}</a>
         </div>
 
       </div>

@@ -1,3 +1,4 @@
+import { Button, Icon } from "antd"
 import React from "react"
 
 class LocalVideoView extends React.Component {
@@ -23,7 +24,7 @@ class LocalVideoView extends React.Component {
   }
 
   render = () => {
-    const { id, label, audioMuted, videoMuted, videoType,onClick } = this.props
+    const { id, label, audioMuted, videoMuted, videoType,onPin, onUnpin } = this.props
 
     let minIconStyle = "local-video-icon-layout"
     if (videoType == "localVideo") {
@@ -32,7 +33,6 @@ class LocalVideoView extends React.Component {
 
     return (
       <div
-      onClick={onClick}
         className={`local-${
           videoType === "localVideo" ? "video" : "screen"
         }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1 bg-black`}
@@ -57,6 +57,8 @@ class LocalVideoView extends React.Component {
           <span className="px-2 py-1 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75">
             {label}
           </span>
+          {onPin && <Button onClick={onPin}>Pin</Button>}
+          {onUnpin && <Button onClick={onUnpin}>Unpin</Button>}
         </div>
       </div>
     )
