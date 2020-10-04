@@ -413,7 +413,7 @@ getRequest() {
           >
             {({values, initialValues})=>(
             <Form>              
-              <div className="min-h-screen flex items-center justify-center w-full bg-indigo-700 py-12 px-4 sm:px-6 lg:px-8">
+              <div className="min-h-screen flex items-center justify-center w-full py-12 px-4 sm:px-6 lg:px-8"  style={{backgroundColor:'#1a1619'}}>
                 <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
                   <div className="">
                     <img className="mx-auto h-12 w-auto" src={logo}/>
@@ -475,7 +475,7 @@ getRequest() {
           >
             {({values, initialValues})=>(
             <Form>              
-              <div className="min-h-screen flex items-center justify-center w-full bg-indigo-700 py-12 px-4 sm:px-6 lg:px-8">
+              <div className="min-h-screen flex items-center justify-center w-full py-12 px-4 sm:px-6 lg:px-8"  style={{backgroundColor:'#1a1619'}}>
                 <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
                   <div className="">
                     {/* <img className="mx-auto h-12 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-on-white.svg" alt="Workflow"/>
