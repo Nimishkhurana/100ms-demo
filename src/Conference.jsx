@@ -227,7 +227,7 @@ class Conference extends React.Component {
           return index == 0 ? (
             <MainVideoView key={item.mid} id={item.mid} stream={item.stream} vidFit={vidFit} />
           ) : (
-            ""
+            <MainVideoView key={item.mid} id={item.mid} stream={item.stream} vidFit={vidFit} />
           );
         })}
         

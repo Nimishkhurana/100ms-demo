@@ -14,7 +14,7 @@ class MainVideoView extends React.Component {
     const { id, stream, vidFit } = this.props;
     const fitClass = vidFit ? "fit-vid" : ""
     return (
-      <div className="w-full max-w-full flex items-center justify-center p-2 relative">
+      <div className="mainwalavideo w-full max-w-full max-h-full flex justify-center items-center relative p-2">
         <video
           ref={ref => {
             this.video = ref;
@@ -23,7 +23,7 @@ class MainVideoView extends React.Component {
           autoPlay
           playsInline
           muted={false}
-          className={"w-full rounded-lg shadow" + fitClass}
+          className={"w-full max-h-full max-w-full rounded-lg h-auto"}
         />
         <div className="main-video-name">
           <a className="main-video-name-a">{stream.info.name}</a>

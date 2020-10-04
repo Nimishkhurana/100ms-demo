@@ -298,7 +298,7 @@ class App extends React.Component {
               <img src={bLogo} className="app-logo-img" />
             </a>
           </div>
-          {login ? (
+          {/* {login ? (
             <div className="app-header-tool">
               <Tooltip title='Mute/Cancel'>
                 <Button
@@ -369,7 +369,7 @@ class App extends React.Component {
             </div>
           ) : (
               <div />
-            )}
+            )} */}
           <div className="app-header-right">
             <MediaSettings onMediaSettingsChanged={this._onMediaSettingsChanged} settings={this._settings} />
           </div>

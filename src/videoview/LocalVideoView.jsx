@@ -37,7 +37,7 @@ class LocalVideoView extends React.Component {
     }
 
     return (
-        <div className={`local-${videoType === 'localVideo'?"video":"screen"}-container w-full max-w-full flex justify-center items-center relative p-2`}>
+        <div className={`local-${videoType === 'localVideo'?"video":"screen"}-container w-full max-w-full max-h-full flex justify-center items-center relative p-2`}>
           <video
             ref={ref => {
               this.video = ref;
@@ -47,7 +47,7 @@ class LocalVideoView extends React.Component {
             playsInline
             muted={true}
             style={{ display: `${this.state.minimize ? 'none' : ''}` }}
-            className="w-full rounded-lg shadow"
+            className="w-full max-h-full max-w-full rounded-lg"
           />
           <div className = {`${this.state.minimize ? minIconStyle : 'local-video-icon-layout'}`}>
             { !this.state.minimize && audioMuted && <MicrophoneOffIcon size={18} color="white" />}
