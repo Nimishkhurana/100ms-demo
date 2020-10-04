@@ -71,7 +71,7 @@ export default class ChatFeed extends Component {
       ];
 
     return (
-      <div id="chat-panel" className='chat-panel'>
+      <div id="chat-panel" className='bg-indigo-600 flex flex-1 flex-col'>
 
         <div className='title-panel'>
           <span className='title-chat'>Chat</span>

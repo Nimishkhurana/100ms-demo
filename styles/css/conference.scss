@@ -37,6 +37,10 @@
   .v4>div {
     height: 50%;
   }
+  .v3>div,
+  .v4>div {
+    width: 50%;
+  }
 }
 @media (orientation:landscape) {
   .conference-layout {
