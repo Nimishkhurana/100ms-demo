@@ -1,4 +1,3 @@
-
 /*------------------local-video--------------------*/
 .local-video-name {
   position: absolute;
@@ -32,7 +31,7 @@
   background-color: rgb(0, 21, 42);
 }
 
-.local-video-icon-layout{
+.local-video-icon-layout {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -41,7 +40,7 @@
   align-items: center;
 }
 
-.local-video-min-layout{
+.local-video-min-layout {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -50,7 +49,7 @@
   align-items: center;
 }
 
-.local-video-avatar{
+.local-video-avatar {
   position: absolute;
   left: 0px;
   right: 0px;
@@ -79,7 +78,7 @@
   object-fit: cover;
 }
 
-.main-video-name{
+.main-video-name {
   position: absolute;
   left: 0px;
   right: 0px;
@@ -96,7 +95,7 @@
 }
 
 /*------------------small-video--------------------*/
-.small-video-list-div{
+.small-video-list-div {
   position: absolute;
   left: 100px;
   right: 100px;
@@ -106,22 +105,21 @@
   overflow-x: auto;
 }
 
-
-.small-video-list{
+.small-video-list {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 
-.small-video-div{
+.small-video-div {
   display: flex;
   width: 220px;
   height: 140px;
   border-width: 1px;
   border-style: solid;
   border-color: #ffffff;
-  background-color:#323232;
+  background-color: #323232;
   border-radius: 2px;
   margin-right: 1px;
   margin-left: 1px;
@@ -138,7 +136,7 @@
   width: 218px;
 }
 
-.small-video-id-a{
+.small-video-id-a {
   position: absolute;
   left: 8px;
   top: 8px;

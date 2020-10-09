@@ -221,9 +221,9 @@ class Conference extends React.Component {
         client={client}
         id={id}
         pinned={this.state.pinned}
-        onUnpin={()=>{
+        onUnpin={() => {
           this.setState({
-            mode:modes.GALLERY
+            mode: modes.GALLERY,
           })
         }}
       />
@@ -237,10 +237,10 @@ class Conference extends React.Component {
         localScreen={localScreen}
         client={client}
         id={id}
-        onPin={(streamId)=>{
+        onPin={(streamId) => {
           this.setState({
-            mode:modes.PINNED,
-            pinned:streamId
+            mode: modes.PINNED,
+            pinned: streamId,
           })
         }}
       />

@@ -25,7 +25,15 @@ class LocalVideoView extends React.Component {
   }
 
   render = () => {
-    const { id, label, audioMuted, videoMuted, videoType,onPin, onUnpin } = this.props
+    const {
+      id,
+      label,
+      audioMuted,
+      videoMuted,
+      videoType,
+      onPin,
+      onUnpin,
+    } = this.props
 
     let minIconStyle = "local-video-icon-layout"
     if (videoType == "localVideo") {
@@ -36,7 +44,8 @@ class LocalVideoView extends React.Component {
       <div
         className={`local-${
           videoType === "localVideo" ? "video" : "screen"
-        }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1`} style={{backgroundColor:'#1a1619'}}
+        }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1`}
+        style={{ backgroundColor: "#1a1619" }}
       >
         <video
           ref={(ref) => {
@@ -58,8 +67,22 @@ class LocalVideoView extends React.Component {
           <span className="px-2 py-1 bg-gray-800 rounded-md text-white inline-block bg-opacity-50 mr-1">
             {label}
           </span>
-          {onPin && <button className="w-6 h-6 bg-gray-800 bg-opacity-50 hover:bg-indigo-500 rounded flex items-center justify-center" onClick={onPin}><PinIcon className="w-4 h-4 text-white" /></button>}
-          {onUnpin && <button className="w-6 h-6 bg-red-500 bg-opacity-50 hover:bg-red-600 rounded flex items-center justify-center" onClick={onUnpin}><PinOffIcon className="w-4 h-4 text-white" /></button>}
+          {onPin && (
+            <button
+              className="w-6 h-6 bg-gray-800 bg-opacity-50 hover:bg-indigo-500 rounded flex items-center justify-center"
+              onClick={onPin}
+            >
+              <PinIcon className="w-4 h-4 text-white" />
+            </button>
+          )}
+          {onUnpin && (
+            <button
+              className="w-6 h-6 bg-red-500 bg-opacity-50 hover:bg-red-600 rounded flex items-center justify-center"
+              onClick={onUnpin}
+            >
+              <PinOffIcon className="w-4 h-4 text-white" />
+            </button>
+          )}
         </div>
       </div>
     )

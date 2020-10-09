@@ -1,39 +1,36 @@
-import React from "react";
+import React from "react"
 
 class SmallVideoView extends React.Component {
-
   constructor(props) {
     super(props)
     this.state = {
-      clientWidth:document.body.offsetWidth,
-      clientHeight:document.body.offsetHeight,
+      clientWidth: document.body.offsetWidth,
+      clientHeight: document.body.offsetHeight,
     }
   }
 
   componentDidMount = () => {
-    const { stream } = this.props;
-    this.video.srcObject = stream;
-
-
-  };
+    const { stream } = this.props
+    this.video.srcObject = stream
+  }
 
   componentWillUnmount = () => {
-    this.video.srcObject = null;
+    this.video.srcObject = null
   }
 
   _handleClick = () => {
-    let { id, index } = this.props;
-    this.props.onClick({ id, index });
-  };
+    let { id, index } = this.props
+    this.props.onClick({ id, index })
+  }
 
   render = () => {
-    const { id, stream,label } = this.props;
+    const { id, stream, label } = this.props
 
     return (
       <div onClick={this._handleClick} className="small-video-div">
         <video
-          ref={ref => {
-            this.video = ref;
+          ref={(ref) => {
+            this.video = ref
           }}
           id={id}
           autoPlay
@@ -44,10 +41,9 @@ class SmallVideoView extends React.Component {
         <div className="small-video-id-div">
           <a className="small-video-id-a">{label || stream.info.name}</a>
         </div>
-
       </div>
-    );
-  };
+    )
+  }
 }
 
-export default SmallVideoView;
+export default SmallVideoView

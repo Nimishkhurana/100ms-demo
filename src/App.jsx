@@ -324,7 +324,7 @@ class App extends React.Component {
                 trigger={null}
                 collapsible
                 collapsed={this.state.collapsed}
-                style={{backgroundColor:'#1a1619'}}
+                style={{ backgroundColor: "#1a1619" }}
               >
                 <div className="left-container">
                   <ChatFeed
@@ -374,9 +374,12 @@ class App extends React.Component {
             <Spin size="large" tip="Connecting..." />
           ) : (
             <div className="relative w-full mt-16">
-            <LoginForm handleLogin={this._handleJoin} createClient={this._createClient} />  
-          </div>
-      )}
+              <LoginForm
+                handleLogin={this._handleJoin}
+                createClient={this._createClient}
+              />
+            </div>
+          )}
         </Content>
       </Layout>
     )

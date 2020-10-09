@@ -15,7 +15,7 @@ const Gallery = ({
   return (
     <div
       className={`conference-layout absolute top-0 bottom-0 w-full flex flex-wrap v${videoCount}`}
-      style={{ height: "calc(100vh - 128px)", backgroundColor:'#1a1619' }}
+      style={{ height: "calc(100vh - 128px)", backgroundColor: "#1a1619" }}
     >
       {localStream && (
         <LocalVideoView

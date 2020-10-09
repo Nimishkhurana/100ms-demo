@@ -1,11 +1,11 @@
-'use strict'
+"use strict"
 
-import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
-import PropTypes from 'prop-types';
-import ChatBubble from './chatbubble';
-import ChatInput from './chatinput';
-import "./style.scss";
+import React, { Component } from "react"
+import ReactDOM from "react-dom"
+import PropTypes from "prop-types"
+import ChatBubble from "./chatbubble"
+import ChatInput from "./chatinput"
+import "./style.scss"
 
 export default class ChatFeed extends Component {
   constructor(props) {
@@ -16,12 +16,12 @@ export default class ChatFeed extends Component {
   }
 
   _scrollToBottom() {
-    const { chat } = this.refs;
-    if(chat !== undefined){
-      const scrollHeight = chat.scrollHeight;
-      const height = chat.clientHeight;
-      const maxScrollTop = scrollHeight - height;
-      ReactDOM.findDOMNode(chat).scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+    const { chat } = this.refs
+    if (chat !== undefined) {
+      const scrollHeight = chat.scrollHeight
+      const height = chat.clientHeight
+      const maxScrollTop = scrollHeight - height
+      ReactDOM.findDOMNode(chat).scrollTop = maxScrollTop > 0 ? maxScrollTop : 0
     }
   }
 
@@ -33,15 +33,10 @@ export default class ChatFeed extends Component {
     }
 
     var message_nodes = group.reverse().map((curr, index) => {
-      return (
-        <ChatBubble
-          key={Math.random().toString(36)}
-          message={curr}
-        />
-      )
+      return <ChatBubble key={Math.random().toString(36)} message={curr} />
     })
     return (
-      <div key={Math.random().toString(36)} className='chatbubble-wrapper'>
+      <div key={Math.random().toString(36)} className="chatbubble-wrapper">
         {message_nodes}
       </div>
     )
@@ -67,27 +62,27 @@ export default class ChatFeed extends Component {
     }, 10)
 
     const messages = [
-      {id:0,message:"hello every one",senderName:'kevin kang'},
-      ];
+      { id: 0, message: "hello every one", senderName: "kevin kang" },
+    ]
 
     return (
-      <div id="chat-panel" className='flex flex-1 flex-col'  style={{backgroundColor:'#000000'}}>
-
-        <div className='title-panel'>
-          <span className='title-chat'>Chat</span>
+      <div
+        id="chat-panel"
+        className="flex flex-1 flex-col"
+        style={{ backgroundColor: "#000000" }}
+      >
+        <div className="title-panel">
+          <span className="title-chat">Chat</span>
         </div>
 
-        <div ref="chat" className='chat-history'>
-          <div>
-            {this._renderMessages(this.props.messages)}
-          </div>
+        <div ref="chat" className="chat-history">
+          <div>{this._renderMessages(this.props.messages)}</div>
         </div>
-        <ChatInput onSendMessage={this.props.onSendMessage}/>
+        <ChatInput onSendMessage={this.props.onSendMessage} />
       </div>
     )
   }
 }
-
 
 ChatFeed.propTypes = {
   isTyping: PropTypes.bool,

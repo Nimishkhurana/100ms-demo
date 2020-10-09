@@ -21,7 +21,7 @@ const Pinned = ({
   return (
     <div
       className={`absolute top-0 bottom-0 w-full flex items-center`}
-      style={{ height: "calc(100vh - 128px)", backgroundColor:'#1a1619' }}
+      style={{ height: "calc(100vh - 128px)", backgroundColor: "#1a1619" }}
     >
       <div className="w-4/5">
         {isLocalStreamPinned && (
