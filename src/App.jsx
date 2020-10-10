@@ -88,6 +88,18 @@ class App extends React.Component {
 
   _handleJoin = async (values) => {
     this.setState({ loading: true })
+    console.log(values);
+    let settings = this._settings;
+    settings.selectedVideoDevice=values.selectedVideoDevice;
+    settings.selectedAudioDevice=values.selectedAudioDevice;
+    //TODO this should reflect in initialization as well
+
+    this._onMediaSettingsChanged(settings.selectedAudioDevice,
+      settings.selectedVideoDevice,
+      settings.resolution,
+      settings.bandwidth,
+      settings.codec,
+      settings.isDevMode);
 
     let client = this._createClient()
 
@@ -131,6 +143,7 @@ class App extends React.Component {
   }
 
   _handleTransportOpen = async (values) => {
+    console.log(values);
     reactLocalStorage.remove("loginInfo")
     reactLocalStorage.setObject("loginInfo", values)
     await this.client.join(values.roomId, { name: values.displayName })
@@ -139,6 +152,7 @@ class App extends React.Component {
       loading: false,
       loginInfo: values,
       localVideoEnabled: !values.audioOnly,
+      localAudioEnabled:!values.videoOnly
     })
 
     this._notification(
