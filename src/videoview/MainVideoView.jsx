@@ -15,10 +15,7 @@ class MainVideoView extends React.Component {
   render = () => {
     const { id, stream, vidFit, onPin, onUnpin, label } = this.props
     return (
-      <div
-        className="w-full max-w-full max-h-full flex justify-center items-center relative p-1"
-        style={{ backgroundColor: "#1a1619" }}
-      >
+      <div className="w-full max-w-full h-full max-h-full flex justify-center items-center relative">
         <video
           ref={(ref) => {
             this.video = ref
@@ -27,7 +24,7 @@ class MainVideoView extends React.Component {
           autoPlay
           playsInline
           muted={false}
-          className={"w-full h-auto max-h-full rounded-lg"}
+          className={"w-full h-auto max-h-full"}
         />
         <div className="absolute top-0 right-0 pt-2 w-full flex justify-center items-center">
           <span className="px-2 py-1 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75">

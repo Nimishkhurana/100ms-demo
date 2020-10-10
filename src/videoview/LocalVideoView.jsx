@@ -44,8 +44,7 @@ class LocalVideoView extends React.Component {
       <div
         className={`local-${
           videoType === "localVideo" ? "video" : "screen"
-        }-container w-full max-w-full max-h-full flex justify-center items-center relative p-1`}
-        style={{ backgroundColor: "#1a1619" }}
+        }-container w-full max-w-full h-full max-h-full flex justify-center items-center relative`}
       >
         <video
           ref={(ref) => {
@@ -56,7 +55,7 @@ class LocalVideoView extends React.Component {
           playsInline
           muted={true}
           style={{ display: `${this.state.minimize ? "none" : ""}` }}
-          className="w-full h-auto max-h-full rounded-lg"
+          className="w-full h-auto max-h-full"
         />
         <div
           className={`${
