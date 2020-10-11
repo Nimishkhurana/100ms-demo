@@ -564,7 +564,7 @@ class LoginForm extends React.Component {
                     <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
                       <div className="">
                         {/* <img className="mx-auto h-12 w-auto" src={logo} /> */}
-                        <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
+                        <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900 mb-2">
                           {initialValues && (
                             <>
                               VC Demo
@@ -584,12 +584,14 @@ class LoginForm extends React.Component {
                             </>
                           )}
                         </h2>
-                        <p className="my-2 text-center text-sm leading-5 text-gray-600">
-                          You are about to join room:{" "}
-                          <span className="font-bold">
-                            {initialValues.roomId}
-                          </span>
-                        </p>
+                        {initialValues && initialValues.roomId && (
+                          <p className="my-2 text-center text-sm leading-5 text-gray-600">
+                            You are about to join room:{" "}
+                            <span className="font-bold">
+                              {initialValues.roomId}
+                            </span>
+                          </p>
+                        )}
                       </div>
                       <div className="rounded-md shadow-sm">
                         <div>
