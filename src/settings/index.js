@@ -1,55 +1,55 @@
-import React from "react"
-import { Modal, Button, Select, Tooltip, Switch } from "antd"
-import SoundMeter from "./soundmeter"
-import PropTypes from "prop-types"
-import { reactLocalStorage } from "reactjs-localstorage"
-import "./style.scss"
+import React from "react";
+import { Modal, Button, Select, Tooltip, Switch } from "antd";
+import SoundMeter from "./soundmeter";
+import PropTypes from "prop-types";
+import { reactLocalStorage } from "reactjs-localstorage";
+import "./style.scss";
 
-const Option = Select.Option
+const Option = Select.Option;
 
 const closeMediaStream = function (stream) {
   if (!stream) {
-    return
+    return;
   }
   if (
     MediaStreamTrack &&
     MediaStreamTrack.prototype &&
     MediaStreamTrack.prototype.stop
   ) {
-    var tracks, i, len
+    var tracks, i, len;
 
     if (stream.getTracks) {
-      tracks = stream.getTracks()
+      tracks = stream.getTracks();
       for (i = 0, len = tracks.length; i < len; i += 1) {
-        tracks[i].stop()
+        tracks[i].stop();
       }
     } else {
-      tracks = stream.getAudioTracks()
+      tracks = stream.getAudioTracks();
       for (i = 0, len = tracks.length; i < len; i += 1) {
-        tracks[i].stop()
+        tracks[i].stop();
       }
 
-      tracks = stream.getVideoTracks()
+      tracks = stream.getVideoTracks();
       for (i = 0, len = tracks.length; i < len; i += 1) {
-        tracks[i].stop()
+        tracks[i].stop();
       }
     }
     // Deprecated by the spec, but still in use.
   } else if (typeof stream.stop === "function") {
-    console.log("closeMediaStream() | calling stop() on the MediaStream")
-    stream.stop()
+    console.log("closeMediaStream() | calling stop() on the MediaStream");
+    stream.stop();
   }
-}
+};
 
 // Attach a media stream to an element.
 const attachMediaStream = function (element, stream) {
-  element.srcObject = stream
-}
+  element.srcObject = stream;
+};
 
 export default class MediaSettings extends React.Component {
   constructor(props) {
-    super(props)
-    let settings = props.settings
+    super(props);
+    let settings = props.settings;
     this.state = {
       visible: false,
       videoDevices: [],
@@ -61,131 +61,130 @@ export default class MediaSettings extends React.Component {
       selectedVideoDevice: settings.selectedVideoDevice,
       codec: settings.codec,
       isDevMode: settings.isDevMode,
-    }
+    };
 
     try {
-      window.AudioContext = window.AudioContext || window.webkitAudioContext
-      window.audioContext = new AudioContext()
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      window.audioContext = new AudioContext();
     } catch (e) {
-      console.log("Web Audio API not supported.")
+      console.log("Web Audio API not supported.");
     }
   }
 
   updateInputDevices = () => {
     return new Promise((pResolve, pReject) => {
-      let videoDevices = []
-      let audioDevices = []
-      let audioOutputDevices = []
+      let videoDevices = [];
+      let audioDevices = [];
+      let audioOutputDevices = [];
       navigator.mediaDevices
         .enumerateDevices()
         .then((devices) => {
           for (let device of devices) {
             if (device.kind === "videoinput") {
-              videoDevices.push(device)
+              videoDevices.push(device);
             } else if (device.kind === "audioinput") {
-              audioDevices.push(device)
+              audioDevices.push(device);
             } else if (device.kind === "audiooutput") {
-              audioOutputDevices.push(device)
+              audioOutputDevices.push(device);
             }
           }
         })
         .then(() => {
-          let data = { videoDevices, audioDevices, audioOutputDevices }
-          pResolve(data)
-        })
-    })
-  }
+          let data = { videoDevices, audioDevices, audioOutputDevices };
+          pResolve(data);
+        });
+    });
+  };
 
   componentDidMount() {
-    console.log("componentDidMount")
     this.updateInputDevices().then((data) => {
       if (
         this.state.selectedAudioDevice === "" &&
         data.audioDevices.length > 0
       ) {
-        this.state.selectedAudioDevice = data.audioDevices[0].deviceId
+        this.state.selectedAudioDevice = data.audioDevices[0].deviceId;
       }
       if (
         this.state.selectedVideoDevice === "" &&
         data.videoDevices.length > 0
       ) {
-        this.state.selectedVideoDevice = data.videoDevices[0].deviceId
+        this.state.selectedVideoDevice = data.videoDevices[0].deviceId;
       }
 
       this.setState({
         videoDevices: data.videoDevices,
         audioDevices: data.audioDevices,
         audioOutputDevices: data.audioOutputDevices,
-      })
+      });
 
       this.state.audioDevices.map((device, index) => {
         if (this.state.selectedAudioDevice == device.deviceId) {
-          console.log("Selected audioDevice::" + JSON.stringify(device))
+          console.log("Selected audioDevice::" + JSON.stringify(device));
         }
-      })
+      });
       this.state.videoDevices.map((device, index) => {
         if (this.state.selectedVideoDevice == device.deviceId) {
-          console.log("Selected videoDevice::" + JSON.stringify(device))
+          console.log("Selected videoDevice::" + JSON.stringify(device));
         }
-      })
-    })
+      });
+    });
   }
 
   soundMeterProcess = () => {
-    var val = window.soundMeter.instant.toFixed(2) * 348 + 1
-    this.setState({ audioLevel: val })
-    if (this.state.visible) setTimeout(this.soundMeterProcess, 100)
-  }
+    var val = window.soundMeter.instant.toFixed(2) * 348 + 1;
+    this.setState({ audioLevel: val });
+    if (this.state.visible) setTimeout(this.soundMeterProcess, 100);
+  };
 
   startPreview = () => {
     if (window.stream) {
-      closeMediaStream(window.stream)
+      closeMediaStream(window.stream);
     }
-    let videoElement = this.refs["previewVideo"]
-    let audioSource = this.state.selectedAudioDevice
-    let videoSource = this.state.selectedVideoDevice
-    this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext)
-    let soundMeterProcess = this.soundMeterProcess
+    let videoElement = this.refs["previewVideo"];
+    let audioSource = this.state.selectedAudioDevice;
+    let videoSource = this.state.selectedVideoDevice;
+    this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
+    let soundMeterProcess = this.soundMeterProcess;
     let constraints = {
       audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
       video: { deviceId: videoSource ? { exact: videoSource } : undefined },
-    }
+    };
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(function (stream) {
-        window.stream = stream // make stream available to console
+        window.stream = stream; // make stream available to console
         //videoElement.srcObject = stream;
-        attachMediaStream(videoElement, stream)
-        soundMeter.connectToSource(stream)
-        setTimeout(soundMeterProcess, 100)
+        attachMediaStream(videoElement, stream);
+        soundMeter.connectToSource(stream);
+        setTimeout(soundMeterProcess, 100);
         // Refresh button list in case labels have become available
-        return navigator.mediaDevices.enumerateDevices()
+        return navigator.mediaDevices.enumerateDevices();
       })
       .then((devces) => {})
-      .catch((erro) => {})
-  }
+      .catch((erro) => {});
+  };
 
   stopPreview = () => {
     if (window.stream) {
-      closeMediaStream(window.stream)
+      closeMediaStream(window.stream);
     }
-  }
+  };
 
   componentWillUnmount() {}
 
   showModal = () => {
     this.setState({
       visible: true,
-    })
-    setTimeout(this.startPreview, 100)
-  }
+    });
+    setTimeout(this.startPreview, 100);
+  };
 
   handleOk = (e) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visible: false,
-    })
-    this.stopPreview()
+    });
+    this.stopPreview();
     if (this.props.onMediaSettingsChanged !== undefined) {
       this.props.onMediaSettingsChanged(
         this.state.selectedAudioDevice,
@@ -194,44 +193,44 @@ export default class MediaSettings extends React.Component {
         this.state.bandwidth,
         this.state.codec,
         this.state.isDevMode
-      )
+      );
     }
-  }
+  };
 
   handleCancel = (e) => {
     this.setState({
       visible: false,
-    })
-    this.stopPreview()
-  }
+    });
+    this.stopPreview();
+  };
 
   handleAudioDeviceChange = (e) => {
-    this.setState({ selectedAudioDevice: e })
-    setTimeout(this.startPreview, 100)
-  }
+    this.setState({ selectedAudioDevice: e });
+    setTimeout(this.startPreview, 100);
+  };
 
   handleVideoDeviceChange = (e) => {
-    this.setState({ selectedVideoDevice: e })
-    setTimeout(this.startPreview, 100)
-  }
+    this.setState({ selectedVideoDevice: e });
+    setTimeout(this.startPreview, 100);
+  };
 
   handleResolutionChange = (e) => {
-    this.setState({ resolution: e })
-  }
+    this.setState({ resolution: e });
+  };
 
   handleVideoCodeChange = (e) => {
-    this.setState({ codec: e })
-  }
+    this.setState({ codec: e });
+  };
 
   handleBandWidthChange = (e) => {
-    this.setState({ bandwidth: e })
-  }
+    this.setState({ bandwidth: e });
+  };
 
   handleDevChange = (checked) => {
     this.setState({
       isDevMode: checked,
-    })
-  }
+    });
+  };
 
   render() {
     return (
@@ -276,7 +275,7 @@ export default class MediaSettings extends React.Component {
                     <Option value={device.deviceId} key={device.deviceId}>
                       {device.label}
                     </Option>
-                  )
+                  );
                 })}
               </Select>
               <div
@@ -303,7 +302,7 @@ export default class MediaSettings extends React.Component {
                     <Option value={device.deviceId} key={device.deviceId}>
                       {device.label}
                     </Option>
-                  )
+                  );
                 })}
               </Select>
               <div className="settings-video-container">
@@ -368,10 +367,10 @@ export default class MediaSettings extends React.Component {
           </div>
         </Modal>
       </div>
-    )
+    );
   }
 }
 
 MediaSettings.propTypes = {
   onMediaSettingsChanged: PropTypes.func,
-}
+};
