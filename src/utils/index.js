@@ -94,6 +94,7 @@ const SingleSelect = ({ field, form, ...props }) => {
                   setFieldValue(name, option.deviceId)
                   updateDevice(name, option.deviceId)
                 }}
+                key={index}
               >
                 <MenuItem key={index} value={option.deviceId}>
                   {option.label}
@@ -102,7 +103,7 @@ const SingleSelect = ({ field, form, ...props }) => {
             ))}
         </Select>
       </FormControl>
-      <style jsx>
+      <style jsx="true">
         {`
           .MuiFormControl-root {
             width: 100%;

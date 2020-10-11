@@ -15,7 +15,7 @@ import { reactLocalStorage } from "reactjs-localstorage"
 import MediaSettings from "./settings"
 import ChatFeed from "./chat/index"
 import Message from "./chat/message"
-import bLogo from "../public/brytecam-logo-on-black.png"
+import bLogo from "../public/100ms-logo-on-black.png"
 import "../styles/css/app.scss"
 
 import LoginForm from "./LoginForm"
@@ -88,7 +88,6 @@ class App extends React.Component {
 
   _handleJoin = async (values) => {
     this.setState({ loading: true })
-    console.log(values);
     let settings = this._settings;
     settings.selectedVideoDevice=values.selectedVideoDevice;
     settings.selectedAudioDevice=values.selectedAudioDevice;
@@ -315,10 +314,10 @@ class App extends React.Component {
     } = this.state
     return (
       <Layout className="app-layout">
-        <Header className="app-header" style={{ backgroundColor: "#1a1619" }}>
+        <Header className="app-header" style={{ backgroundColor: "#1a1619", zIndex:"10" }}>
           <div className="app-header-left">
             <a href="https://brytecam.dev" target="_blank">
-              <img src={bLogo} className="app-logo-img" />
+              <img src={bLogo} className="h-8" />
             </a>
           </div>
           <div className="app-header-right">

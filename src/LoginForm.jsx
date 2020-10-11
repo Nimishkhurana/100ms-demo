@@ -113,6 +113,7 @@ class LoginForm extends React.Component {
       ? this.localStorage.videoOnly
       : false
     : false
+  permissionGranted = this.localStorage ? (this.localStorage.permissionGranted?this.localStorage.permissionGranted:false):false;
 
   componentDidMount = () => {
     //const { form } = this.props;
@@ -134,27 +135,48 @@ class LoginForm extends React.Component {
         : {
             selectedAudioDevice: "",
             selectedVideoDevice: "",
-            selectedAudioOutputDevice: "",
+            // selectedAudioOutputDevice: "",
             resolution: "qvga",
-            bandwidth: 512,
+            bandwidth: 256,
             codec: "vp8",
             isDevMode: true,
           }
 
+      this.state.audioOnly=this.audioOnly;
+      this.state.videoOnly=this.videoOnly;
+      this.state.permissionGranted=this.permissionGranted;
+      this.state.permissionText="We will need your permission to use your webcam and microphone.";
+
     if (this.displayName !== "" && this.roomId !== "") {
-      this.updateDeviceList(() => {
-        formStage = "PREVIEW"
+      if(this.state.permissionGranted){
+        this.updateDeviceList(() => {        
+          formStage = "PREVIEW";
+          this.setState({
+            ...this.state,
+            formStage: formStage,
+          })
+        })
+      }
+      else{
+        formStage="PERMISSION";
         this.setState({
           ...this.state,
-          formStage: formStage,
+          formStage:formStage
         })
-        this.startPreview()
-      })
+      }
     } else {
       this.setState({
         ...this.state,
         formStage: formStage,
       })
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if ((prevState.formStage || this.state.formStage) && prevState.formStage !== this.state.formStage) {
+      if(this.state.formStage==='PREVIEW'){
+        this.startPreview(false);
+      }
     }
   }
 
@@ -316,14 +338,14 @@ class LoginForm extends React.Component {
         this.state.settings.selectedVideoDevice = data.videoDevices[0].deviceId
       }
 
-      if (
-        this.state.settings.selectedAudioOutputDevice === "" &&
-        data.audioOutputDevices.length > 0
-      ) {
-        console.log("setting output device")
-        this.state.settings.selectedAudioOutputDevice =
-          data.audioOutputDevices[0].deviceId
-      }
+      // if (
+      //   this.state.settings.selectedAudioOutputDevice === "" &&
+      //   data.audioOutputDevices.length > 0
+      // ) {
+      //   console.log("setting output device")
+      //   this.state.settings.selectedAudioOutputDevice =
+      //     data.audioOutputDevices[0].deviceId
+      // }
 
       this.setState({
         ...this.state,
@@ -332,21 +354,28 @@ class LoginForm extends React.Component {
         audioOutputDevices: data.audioOutputDevices,
       })
       if (callback) {
-        console.log("Calling back")
         callback()
       }
     })
   }
 
   handleNameSubmit = (values) => {
+    if(this.state.permissionGranted){
     this.updateDeviceList(() => {
       this.setState({
         ...this.state,
         formValues: values,
         formStage: "PREVIEW",
       })
-      this.startPreview()
     })
+  }
+  else{
+    this.setState({
+      ...this.state,
+      formValues: values,
+      formStage: "PERMISSION",
+    })
+  }
 
     // this.state.audioDevices.map((device, index) => {
     //     if (this.state.selectedAudioDevice == device.deviceId) {
@@ -372,6 +401,9 @@ class LoginForm extends React.Component {
         : this.roomId,
       audioOnly: values.audioOnly,
       videoOnly: values.videoOnly,
+      permissionGranted:this.state.permissionGranted,
+      selectedAudioDevice:values.selectedAudioDevice,
+      selectedVideoDevice:values.selectedVideoDevice,
     })
   }
 
@@ -382,39 +414,85 @@ class LoginForm extends React.Component {
     setTimeout(this.soundMeterProcess, 100)
   }
 
-  startPreview = () => {
+  startPreview = (permissionTestMode=false) => {
     // if (window.stream) {
     //     closeMediaStream(window.stream);
     // }
-    let videoElement = document.getElementById("previewVideo")
-    let audioSource = this.state.settings.selectedAudioDevice
-    let videoSource = this.state.settings.selectedVideoDevice
-    this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext)
-    let soundMeterProcess = this.soundMeterProcess
+    let audioSource = this.state.settings.selectedAudioDevice;
+    let videoSource = this.state.settings.selectedVideoDevice;
+    let videoElement, soundMeterProcess;
+    if(!permissionTestMode){
+      videoElement = document.getElementById("previewVideo")
+      this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext)
+      soundMeterProcess = this.soundMeterProcess
+    }
     let constraints = {
-      audio: this.state.settings.videoOnly
+      audio: this.state.videoOnly
         ? false
         : { deviceId: audioSource ? { exact: audioSource } : undefined },
-      video: this.state.settings.audioOnly
+      video: this.state.audioOnly
         ? false
         : { deviceId: videoSource ? { exact: videoSource } : undefined },
     }
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(function (stream) {
-        window.stream = stream // make stream available to console
-        //videoElement.srcObject = stream;
-        console.log("Attaching video")
-        console.log(videoElement)
-        attachMediaStream(videoElement, stream)
-        soundMeter.connectToSource(stream)
-        console.log("Starting sound meter")
-        setTimeout(soundMeterProcess, 100)
+        if(!permissionTestMode){
+          window.stream = stream // make stream available to console
+          //videoElement.srcObject = stream;
+          attachMediaStream(videoElement, stream)
+          //TODO this throws an error when audio only is chosen. Handle it
+          // if(this && !this.state.videoOnly){
+            soundMeter.connectToSource(stream)
+            setTimeout(soundMeterProcess, 100)
+          // }
+        }
+        return navigator.mediaDevices.enumerateDevices()          
         // Refresh button list in case labels have become available
-        return navigator.mediaDevices.enumerateDevices()
       })
-      .then((devces) => {})
-      .catch((erro) => {})
+      .then((devices) => {
+        //TODO combine with updateInputDevices
+        let videoDevices = []
+        let audioDevices = []
+        let audioOutputDevices = []    
+        for (let device of devices) {
+          if (device.kind === "videoinput") {
+            videoDevices.push(device)
+          } else if (device.kind === "audioinput") {
+            audioDevices.push(device)
+          } else if (device.kind === "audiooutput") {
+            audioOutputDevices.push(device)
+          }
+        }
+        let data = { videoDevices, audioDevices, audioOutputDevices };
+        if (
+          this.state.settings.selectedAudioDevice === "" &&
+          data.audioDevices.length > 0
+        ) {
+          this.state.settings.selectedAudioDevice = data.audioDevices[0].deviceId
+        }
+        if (
+          this.state.settings.selectedVideoDevice === "" &&
+          data.videoDevices.length > 0
+        ) {
+          this.state.settings.selectedVideoDevice = data.videoDevices[0].deviceId
+        }
+        this.setState({
+          ...this.state,
+          audioDevices:data.audioDevices,
+          videoDevices:data.videoDevices,
+          permissionGranted:true,
+          formStage: "PREVIEW",
+        })  
+      })
+      .catch((error) => {
+        //TODO - look for only permission error. Rest of the errors should be handled
+        console.log(error);
+        this.setState({
+          ...this.state,
+          permissionText:"You won't be able to access the meeting unless you grant camera and mic permissions"
+        })
+      })
   }
 
   getRequest() {
@@ -431,16 +509,15 @@ class LoginForm extends React.Component {
   }
 
   updateDevice = (name, value) => {
-    console.log(this.state.settings[name])
     this.state.settings[name] = value
-    this.startPreview()
+    this.startPreview(false)
   }
 
   render() {
     const steps = this.state.steps
 
     return (
-      <>
+      <div className="relative -mt-24 z-0">
         {this.state.formStage && this.state.formStage === "NAME" && (
           <>
             <Formik
@@ -477,28 +554,31 @@ class LoginForm extends React.Component {
                   >
                     <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
                       <div className="">
-                        <img className="mx-auto h-12 w-auto" src={logo} />
+                        {/* <img className="mx-auto h-12 w-auto" src={logo} /> */}
                         <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
                           {initialValues && (
                             <>
-                              Welcome to{" "}
-                              {`${
-                                initialValues.roomId
-                                  ? initialValues.roomId
-                                  : "100ms"
-                              }`}
+                              VC Demo
+                              <span className="text-xs rounded-md text-white font-medium ml-1" style={{
+                                verticalAlign:"text-top",
+                                padding:"4px 4px",
+                                background:"#312A30",
+//                                color:"#EE6A5F",
+                                fontFamily:"monospace"
+                                // background:"#1a1619"
+                              }}>Powered by 100ms</span>
                             </>
                           )}
                         </h2>
                         <p className="my-2 text-center text-sm leading-5 text-gray-600">
-                          You are about to join a video call
+                          You are about to join room: <span className="font-bold">{initialValues.roomId}</span>
                         </p>
                       </div>
                       <div className="rounded-md shadow-sm">
                         <div>
                           {initialValues && !initialValues.roomId && (
                             <Field
-                              ariaLabel="Room ID"
+                              label="Room ID"
                               name="roomId"
                               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5"
                               placeholder="Room ID"
@@ -508,7 +588,7 @@ class LoginForm extends React.Component {
                         <div className="-mt-px">
                           {initialValues && (
                             <Field
-                              ariaLabel="Name"
+                              label="Name"
                               name="displayName"
                               className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5 ${
                                 initialValues.roomId ? "rounded-t-md" : ""
@@ -535,6 +615,46 @@ class LoginForm extends React.Component {
             </Formik>
           </>
         )}
+        {this.state.formStage && this.state.formStage==="PERMISSION" && (
+          <>
+            <div
+                    className="min-h-screen flex items-center justify-center w-full py-12 px-4 sm:px-6 lg:px-8"
+                    style={{ backgroundColor: "#1a1619" }}
+                  >
+                    <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
+                      <div className="">
+                      <h2 className="mt-2 text-center text-3xl leading-9 font-extrabold text-gray-900">
+                  <>
+                    VC Demo
+                    <span className="text-xs rounded-md text-white font-medium ml-1" style={{
+                      verticalAlign:"text-top",
+                      padding:"4px 4px",
+                      background:"#312A30",
+//                      color:"#EE6A5F",
+                      fontFamily:"monospace"
+                      // background:"#1a1619"
+                    }}>Powered by 100ms</span>
+                  </>
+              </h2>
+
+                      <p className="mt-2 text-center text-sm leading-5 text-gray-600 mb-2">
+                          {this.state.permissionText}
+                      </p>
+                      <div className="mt-6">
+                        <button
+                          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
+                          onClick={this.startPreview(true)} 
+                           >
+                          <span className="absolute left-0 inset-y-0 flex items-center pl-3"></span>
+                          Prompt permission dialog
+                        </button>
+                      </div>
+                      </div>
+                    </div>
+            </div>
+          </>
+          )
+        }
         {this.state.formStage && this.state.formStage === "PREVIEW" && (
           <>
             <Formik
@@ -545,11 +665,11 @@ class LoginForm extends React.Component {
                 selectedVideoDevice: this.state.settings
                   ? this.state.settings.selectedVideoDevice
                   : null,
-                selectedAudioOutputDevice: this.state.settings
-                  ? this.state.settings.selectedAudioOutputDevice
-                  : null,
-                audioOnly: this.audioOnly,
-                videoOnly: this.videoOnly,
+                // selectedAudioOutputDevice: this.state.settings
+                //   ? this.state.settings.selectedAudioOutputDevice
+                //   : null,
+                audioOnly: this.state.audioOnly,
+                videoOnly: this.state.videoOnly,
               }}
               validate={(values) => {
                 const errors = {}
@@ -576,10 +696,19 @@ class LoginForm extends React.Component {
                   >
                     <div className="overflow-hidden shadow rounded-lg max-w-sm w-full px-4 py-5 sm:p-6 bg-gray-100">
                       <div className="">
-                        {/* <img className="mx-auto h-12 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-on-white.svg" alt="Workflow"/>
-                    <h2 className="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
-                      {initialValues && (<>Welcome to {`${initialValues.roomId?initialValues.roomId:'100ms'}`}</>)}
-                    </h2> */}
+                      <h2 className="mt-2 text-center text-3xl leading-9 font-extrabold text-gray-900">
+                  <>
+                    VC Demo
+                    <span className="text-xs rounded-md text-white font-medium ml-1" style={{
+                      verticalAlign:"text-top",
+                      padding:"4px 4px",
+                      background:"#312A30",
+                      color:"#EE6A5F",
+                      fontFamily:"monospace"
+                      // background:"#1a1619"
+                    }}>Powered by 100ms</span>
+                  </>
+              </h2>
                         <p className="mt-2 text-center text-sm leading-5 text-gray-600 mb-2">
                           You are about to join{" "}
                           <span className="font-semibold">
@@ -628,8 +757,8 @@ class LoginForm extends React.Component {
                                   e.preventDefault()
                                   const initialValue = values.audioOnly
                                   setFieldValue("audioOnly", !initialValue)
-                                  this.state.settings.audioOnly = !initialValue
-                                  this.startPreview()
+                                  this.state.audioOnly = !initialValue
+                                  this.startPreview(false)
                                 }}
                                 className={`py-1 px-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 active:bg-indigo-700 transition duration-150 ease-in-out ${
                                   !values.audioOnly
@@ -689,10 +818,10 @@ class LoginForm extends React.Component {
                                   e.preventDefault()
                                   const initialValue = values.videoOnly
                                   setFieldValue("videoOnly", !initialValue)
-                                  this.state.settings.videoOnly = !initialValue
-                                  this.startPreview()
+                                  this.state.videoOnly = !initialValue
+                                  this.startPreview(false)
                                 }}
-                                className={`ml-1 py-1 px-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-opacity-50 bg-gray-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out ${
+                                className={`ml-1 py-1 px-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out ${
                                   !values.videoOnly
                                     ? "bg-opacity-50 bg-gray-600"
                                     : "bg-indigo-600"
@@ -747,7 +876,7 @@ class LoginForm extends React.Component {
                         <div className="px-1">
                           <div
                             style={{
-                              width: this.state.audioLevel + "px",
+                              width: values.videoOnly?"1px":this.state.audioLevel + "px",
                               height: "4px",
                               backgroundColor: "#8dc63f",
                             }}
@@ -781,7 +910,7 @@ class LoginForm extends React.Component {
                             />
                           )}
                         </div>
-                        <div className="-mt-px">
+                        {/* <div className="-mt-px">
                           {initialValues && (
                             <Field
                               label="Autio Output"
@@ -793,7 +922,7 @@ class LoginForm extends React.Component {
                               updateDevice={this.updateDevice}
                             />
                           )}
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="mt-0">
@@ -830,7 +959,7 @@ class LoginForm extends React.Component {
             </Formik>
           </>
         )}
-      </>
+      </div>
     )
   }
 }
