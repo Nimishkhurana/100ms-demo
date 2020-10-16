@@ -59,7 +59,14 @@ const Gallery = ({
     mergedVideoEl.current.srcObject = mergedStream
   }, [mergedStream])
 
-  console.log(loginInfo)
+  useEffect(() => {
+    mergedVideoEl.current.addEventListener("leavepictureinpicture", () => {
+      setPip(false)
+    })
+    mergedVideoEl.current.addEventListener("enterpictureinpicture", () => {
+      setPip(true)
+    })
+  }, [])
 
   return (
     <>
@@ -153,14 +160,14 @@ const Gallery = ({
               mergedVideoEl.current
                 .requestPictureInPicture()
                 .then(() => {
-                  setPip(true)
+                  // setPip(true)
                 })
                 .catch(console.error)
             } else {
               document
                 .exitPictureInPicture()
                 .then(() => {
-                  setPip(false)
+                  // setPip(false)
                 })
                 .catch(console.error)
             }
