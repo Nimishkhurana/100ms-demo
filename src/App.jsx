@@ -325,12 +325,6 @@ class App extends React.Component {
               <img src={bLogo} className="h-8" />
             </a>
           </div>
-          <button
-            id="pop"
-            style={{ background: "white", padding: "0.5rem 1rem" }}
-          >
-            popout
-          </button>
           <div className="app-header-right">
             <MediaSettings
               onMediaSettingsChanged={this._onMediaSettingsChanged}
@@ -367,6 +361,7 @@ class App extends React.Component {
                       localAudioEnabled={localAudioEnabled}
                       localVideoEnabled={localVideoEnabled}
                       vidFit={vidFit}
+                      loginInfo={this.state.loginInfo}
                       ref={(ref) => {
                         this.conference = ref
                       }}

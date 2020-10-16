@@ -20,7 +20,7 @@ class SmallVideoView extends React.Component {
 
   _handleClick = () => {
     let { id, index } = this.props
-    this.props.onClick({ id, index })
+    this.props.onClick({ id, index, el: this.video })
   }
 
   render = () => {

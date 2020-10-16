@@ -237,6 +237,7 @@ class Conference extends React.Component {
         localScreen={localScreen}
         client={client}
         id={id}
+        loginInfo={this.props.loginInfo}
         onPin={(streamId) => {
           this.setState({
             mode: modes.PINNED,
