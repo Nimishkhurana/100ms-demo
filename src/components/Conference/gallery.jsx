@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview"
 import ContainerDimensions from "react-container-dimensions"
-import { largestRect, largestSquare } from "rect-scaler"
+import { largestRect } from "rect-scaler"
+import VideoStreamMerger from "video-stream-merger"
 
 const Gallery = ({
   id,
@@ -30,14 +31,13 @@ const Gallery = ({
             h = largestRectObj.height
           }
 
-          console.log({ w, h })
           return (
             <>
               {localStream && (
                 <div style={{ height: h, width: w }}>
                   <LocalVideoView
                     id={id + "-video"}
-                    label="Local Stream"
+                    label="(You)"
                     client={client}
                     stream={localStream}
                     audioMuted={audioMuted}
@@ -67,7 +67,7 @@ const Gallery = ({
                 <div style={{ height: h, width: w }}>
                   <LocalVideoView
                     id={id + "-screen"}
-                    label="Screen Sharing"
+                    label="Screen Sharing (You)"
                     client={client}
                     stream={localScreen}
                     audioMuted={false}
