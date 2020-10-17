@@ -384,6 +384,7 @@ class App extends React.Component {
                         this._openOrCloseLeftContainer(!collapsed)
                       }
                       isChatOpen={!this.state.collapsed}
+                      loginInfo={this.state.loginInfo}
                     />
                   </div>
                 </Content>

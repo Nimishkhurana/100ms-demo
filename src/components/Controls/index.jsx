@@ -8,6 +8,7 @@ import PhoneHangupIcon from "mdi-react/PhoneHangupIcon"
 import TelevisionIcon from "mdi-react/TelevisionIcon"
 import TelevisionOffIcon from "mdi-react/TelevisionOffIcon"
 import VideoCheckIcon from "mdi-react/VideoCheckIcon"
+import ToolShare from "../../ToolShare"
 
 const Controls = ({
   isMuted,
@@ -19,6 +20,7 @@ const Controls = ({
   onCamToggle,
   onLeave,
   onChatToggle,
+  loginInfo,
 }) => {
   return (
     <div
@@ -61,7 +63,7 @@ const Controls = ({
           onClick={onScreenToggle}
         />
       </div>
-      <div className="ml-1">
+      <div className="mx-1">
         <ControlButton
           icon={
             <svg
@@ -99,6 +101,9 @@ const Controls = ({
           onClick={onChatToggle}
           isActive={isChatOpen}
         />
+      </div>
+      <div className="ml-1">
+        <ToolShare loginInfo={loginInfo} />
       </div>
     </div>
   )

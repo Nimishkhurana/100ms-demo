@@ -2,7 +2,8 @@ import React from "react"
 import PropTypes from "prop-types"
 import ReactDOM from "react-dom"
 import { Modal, Button, Tooltip, Input, Icon } from "antd"
-import DotsVerticalIcon from "mdi-react/DotsVerticalIcon"
+import { ControlButton } from "./components/Controls/ControlButton"
+import ShareIcon from "mdi-react/ShareIcon"
 
 export default class ToolShare extends React.Component {
   constructor(props) {
@@ -40,15 +41,14 @@ export default class ToolShare extends React.Component {
 
   render() {
     return (
-      <div className="app-header-tool-container">
-        <Tooltip title="Shared conference">
-          <Button ghost size="large" type="link" onClick={this.showModal}>
-            <Icon
-              component={DotsVerticalIcon}
-              style={{ display: "flex", justifyContent: "center" }}
-            />
-          </Button>
-        </Tooltip>
+      <div>
+        <ControlButton
+          icon={<ShareIcon className="text-indigo-100" />}
+          activeIcon={<ShareIcon className="text-red-100" />}
+          label="Share"
+          isActive={false}
+          onClick={this.showModal}
+        />
         <Modal
           title="Shared conference"
           visible={this.state.visible}
