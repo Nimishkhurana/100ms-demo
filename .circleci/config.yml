@@ -1,7 +1,11 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@6.13.0
+  hello: circleci/hello-build@0.0.5
 workflows:
+  test:
+    jobs:
+      - hello/hello-build
   staging:
     jobs:
       - aws-ecr/build-and-push-image:
