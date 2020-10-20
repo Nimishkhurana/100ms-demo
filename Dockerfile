@@ -10,6 +10,9 @@ COPY src/ src/
 COPY styles/ styles/
 COPY webpack.config.js .babelrc ./
 
+ARG TOKEN
+ENV TOKEN=${TOKEN}
+
 RUN npm run build
 
 # Serve dist

@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const webpack = require('webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { debug } = require('console');
@@ -66,6 +67,7 @@ module.exports = (env) => {
              }
            : undefined
     )),
+    new webpack.DefinePlugin({ 'process.env.TOKEN': JSON.stringify(process.env.TOKEN) })
   ],
   devServer: {
     hot: true,

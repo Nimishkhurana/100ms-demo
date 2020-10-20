@@ -70,7 +70,7 @@ class App extends React.Component {
 
   _createClient = () => {
     let url = "wss://" + window.location.host
-    const token = "INSERT TOKEN HERE"
+    const token = process.env.TOKEN
     //for dev by scripts
     if (process.env.NODE_ENV == "development") {
       const proto = this._settings.isDevMode ? "wss" : "wss"
