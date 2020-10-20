@@ -66,7 +66,7 @@ class LocalVideoView extends React.Component {
           <span className="px-2 py-1 bg-gray-800 rounded-md text-white inline-block bg-opacity-50 mr-1">
             {label}
           </span>
-          {/* {onPin && (
+          {onPin && (
             <button
               className="w-6 h-6 bg-gray-800 bg-opacity-50 hover:bg-indigo-500 rounded flex items-center justify-center"
               onClick={onPin}
@@ -81,7 +81,7 @@ class LocalVideoView extends React.Component {
             >
               <PinOffIcon className="w-4 h-4 text-white" />
             </button>
-          )} */}
+          )}
         </div>
       </div>
     )

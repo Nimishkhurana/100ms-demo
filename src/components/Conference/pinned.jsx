@@ -72,6 +72,7 @@ const Pinned = ({
             id={id + "-screen"}
             stream={localScreen}
             label="local Screen"
+            isMuted={true}
           />
         )}
         {localStream && !isLocalStreamPinned && (
@@ -79,6 +80,7 @@ const Pinned = ({
             id={id + "-video"}
             stream={localStream}
             label="local Stream"
+            isMuted={true}
           />
         )}
       </div>

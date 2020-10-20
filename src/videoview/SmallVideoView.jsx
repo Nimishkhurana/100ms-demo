@@ -24,7 +24,7 @@ class SmallVideoView extends React.Component {
   }
 
   render = () => {
-    const { id, stream, label } = this.props
+    const { id, stream, label,isMuted } = this.props
 
     return (
       <div onClick={this._handleClick} className="small-video-div">
@@ -35,7 +35,7 @@ class SmallVideoView extends React.Component {
           id={id}
           autoPlay
           playsInline
-          muted={false}
+          muted={isMuted}
           className="small-video-size"
         />
         <div className="small-video-id-div">
