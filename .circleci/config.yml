@@ -6,3 +6,4 @@ workflows:
     jobs:
       - aws-ecr/build-and-push-image:
           repo: ion-web
+          extra-build-args: TOKEN
