@@ -44,8 +44,7 @@
     "react-mdi": "^0.5.7",
     "react-router": "^5.0.1",
     "reactjs-localstorage": "1.0.1",
-    "rect-scaler": "^1.0.0",
-    "video-stream-merger": "^3.6.3"
+    "rect-scaler": "^1.0.0"
   },
   "keywords": [
     "brytecam",
