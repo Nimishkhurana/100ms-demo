@@ -48,6 +48,25 @@ class Conference extends React.Component {
     await this._unpublish(localStream)
   }
 
+  // @TODO: Move this to utils or core lib
+  tuneLocalStream = (participantCount) => {
+    if (!this.state.localStream) return
+
+    const MAX_INCOMING_BITRATE = 1600
+    const outoging_bitrate = MAX_INCOMING_BITRATE / participantCount
+    console.log(this.state.localStream.getVideoTracks()[0].getConstraints())
+    if (outoging_bitrate < MAX_INCOMING_BITRATE) {
+      this.state.localStream.getVideoTracks()[0].applyConstraints({
+        frameRate: 10, // Min framerate
+        // Do something more to get the bandwidth to `outgoing_bitrate`
+      })
+    } else {
+      this.state.localStream.getVideoTracks()[0].applyConstraints({
+        frameRate: 20, // Reset to default
+      })
+    }
+  }
+
   _notification = (message, description) => {
     notification.info({
       message: message,
@@ -90,9 +109,19 @@ class Conference extends React.Component {
 
     try {
       if (enabled) {
-        let videoOptions = {deviceId: settings.selectedVideoDevice}
-        if(settings.resolution === 'qqvga') {
-          videoOptions = {...videoOptions,...{width: { ideal: 160 }, height: { ideal: 90 },frameRate:{ ideal: 15 }}}
+        let videoOptions = {
+          deviceId: settings.selectedVideoDevice,
+          frameRate: 20,
+        }
+        if (settings.resolution === "qqvga") {
+          videoOptions = {
+            ...videoOptions,
+            ...{
+              width: { ideal: 160 },
+              height: { ideal: 90 },
+              frameRate: { ideal: 15 },
+            },
+          }
         }
         localStream = await LocalStream.getUserMedia({
           codec: settings.codec.toUpperCase(),
@@ -159,12 +188,14 @@ class Conference extends React.Component {
     console.log(mid, info, stream)
     streams.push({ mid: stream.mid, stream, sid: mid })
     this.setState({ streams })
+    this.tuneLocalStream(streams.length)
   }
 
   _handleRemoveStream = async (stream) => {
     let streams = this.state.streams
     streams = streams.filter((item) => item.sid !== stream.mid)
     this.setState({ streams })
+    this.tuneLocalStream(streams.length)
   }
 
   _onChangeVideoPosition = (data) => {

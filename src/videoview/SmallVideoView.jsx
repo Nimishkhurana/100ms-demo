@@ -24,7 +24,7 @@ class SmallVideoView extends React.Component {
   }
 
   render = () => {
-    const { id, stream, label,isMuted } = this.props
+    const { id, stream, label, isMuted } = this.props
 
     return (
       <div onClick={this._handleClick} className="small-video-div">
