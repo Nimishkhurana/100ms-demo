@@ -329,6 +329,7 @@ export default class MediaSettings extends React.Component {
                 value={this.state.resolution}
                 onChange={this.handleResolutionChange}
               >
+                <Option value="qqvga">QQVGA(160x90)</Option>
                 <Option value="qvga">QVGA(320x180)</Option>
                 <Option value="vga">VGA(640x360)</Option>
                 <Option value="shd">SHD(960x540)</Option>
@@ -358,6 +359,7 @@ export default class MediaSettings extends React.Component {
                 value={this.state.bandwidth}
                 onChange={this.handleBandWidthChange}
               >
+                <Option value="100">Lowest(100kbps)</Option>
                 <Option value="256">Low(256kbps)</Option>
                 <Option value="512">Medium(512kbps)</Option>
                 <Option value="1024">High(1Mbps)</Option>

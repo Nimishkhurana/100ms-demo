@@ -90,18 +90,16 @@ class Conference extends React.Component {
 
     try {
       if (enabled) {
-        //if (settings.selectedVideoDevice) {
-        //	videoObj = { deviceId: settings.selectedVideoDevice }
-        //} else {
-        //	videoObj = true
-        //}
+        let videoOptions = {deviceId: settings.selectedVideoDevice}
+        if(settings.resolution === 'qqvga') {
+          videoOptions = {...videoOptions,...{width: { ideal: 160 }, height: { ideal: 90 }}}
+        }
         localStream = await LocalStream.getUserMedia({
           codec: settings.codec.toUpperCase(),
           resolution: settings.resolution,
           bandwidth: settings.bandwidth,
           audio: true,
-          video: { deviceId: settings.selectedVideoDevice },
-          //video: true,
+          video: videoOptions,
         })
         await client.publish(localStream)
       } else {
