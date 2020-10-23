@@ -92,7 +92,7 @@ class Conference extends React.Component {
       if (enabled) {
         let videoOptions = {deviceId: settings.selectedVideoDevice}
         if(settings.resolution === 'qqvga') {
-          videoOptions = {...videoOptions,...{width: { ideal: 160 }, height: { ideal: 90 }}}
+          videoOptions = {...videoOptions,...{width: { ideal: 160 }, height: { ideal: 90 },frameRate:{ ideal: 15 }}}
         }
         localStream = await LocalStream.getUserMedia({
           codec: settings.codec.toUpperCase(),
