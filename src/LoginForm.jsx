@@ -769,8 +769,7 @@ class LoginForm extends React.Component {
                           autoPlay
                           playsInline
                           muted={true}
-                          className="rounded-md h-full"
-                          style={{ objectFit: "cover" }}
+                          className="rounded-md h-full w-full"
                         ></video>
                         {/* {values.audioOnly && (<div id='previewVideo' className="rounded-md mb-3 h-full w-full bg-black"></div>)} */}
                         <div className="absolute bottom-0 w-full flex justify-center pb-1">

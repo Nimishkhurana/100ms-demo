@@ -53,15 +53,17 @@ class Conference extends React.Component {
     if (!this.state.localStream) return;
 
     const MAX_INCOMING_BITRATE = 1600;
-    const outoging_bitrate = MAX_INCOMING_BITRATE / participantCount;
+    const outgoing_bitrate = MAX_INCOMING_BITRATE / participantCount;
     console.log(this.state.localStream.getVideoTracks()[0].getConstraints());
-    if (outoging_bitrate < MAX_INCOMING_BITRATE) {
+    if (outgoing_bitrate < MAX_INCOMING_BITRATE) {
       this.state.localStream.getVideoTracks()[0].applyConstraints({
+        ...this.state.localStream.getVideoTracks()[0].getConstraints(),
         frameRate: 10, // Min framerate
         // Do something more to get the bandwidth to `outgoing_bitrate`
       });
     } else {
       this.state.localStream.getVideoTracks()[0].applyConstraints({
+        ...this.state.localStream.getVideoTracks()[0].getConstraints(),
         frameRate: 20, // Reset to default
       });
     }

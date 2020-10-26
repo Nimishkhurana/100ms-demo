@@ -56,7 +56,7 @@ class LocalVideoView extends React.Component {
           playsInline
           muted={true}
           style={{ display: `${this.state.minimize ? "none" : ""}` }}
-          className={`w-full h-full  ${pinned ? "" : "object-cover"}`}
+          className={`w-full h-full  ${pinned ? "" : ""}`}
         />
         <div
           className={`${

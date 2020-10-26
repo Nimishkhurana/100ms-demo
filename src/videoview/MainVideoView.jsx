@@ -32,7 +32,7 @@ class MainVideoView extends React.Component {
           autoPlay
           playsInline
           muted={false}
-          className={`w-full h-full ${pinned ? "" : "object-cover"}`}
+          className={`w-full h-full ${pinned ? "" : ""}`}
         />
         <div className="absolute top-0 right-0 pt-2 w-full flex justify-center items-center">
           <span className="px-2 py-1 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75">
