@@ -34,6 +34,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "antd": "^3.26.16",
+    "bowser": "^2.11.0",
     "brytecam-sdk-js": "^0.3.0",
     "copy-webpack-plugin": "^5.0.5",
     "formik": "^2.1.7",
