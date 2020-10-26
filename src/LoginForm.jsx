@@ -154,6 +154,32 @@ class LoginForm extends React.Component {
 
     if (this.displayName !== "" && this.roomId !== "") {
       if (this.state.permissionGranted) {
+        if (
+          this.state.settings.selectedAudioDevice === "" &&
+          this.state.settings.selectedVideoDevice === ""
+        ) {
+          console.log("Showing preview");
+          this.updateDeviceList(() => {
+            this.setState({
+              ...this.state,
+              formValues: values,
+              formStage: "PREVIEW",
+            });
+          });
+        } else {
+          console.log("Let's go to conference");
+          const handleLogin = this.props.handleLogin;
+          handleLogin({
+            displayName: this.displayName,
+            roomId: this.roomId,
+            audioOnly: this.state.audioOnly,
+            videoOnly: this.state.videoOnly,
+            permissionGranted: this.state.permissionGranted,
+            selectedAudioDevice: this.state.settings.selectedAudioDevice,
+            selectedVideoDevice: this.state.settings.selectedVideoDevice,
+          });
+        }
+
         this.updateDeviceList(() => {
           formStage = "PREVIEW";
           this.setState({
@@ -183,6 +209,7 @@ class LoginForm extends React.Component {
     ) {
       if (this.state.formStage === "PREVIEW") {
         this.startPreview(false);
+        //console.log("Start preview called from state change componentDidUpdate preview check")
       }
     }
   }
@@ -367,14 +394,37 @@ class LoginForm extends React.Component {
   };
 
   handleNameSubmit = (values) => {
+    console.log(this.state.permissionGranted);
     if (this.state.permissionGranted) {
-      this.updateDeviceList(() => {
-        this.setState({
-          ...this.state,
-          formValues: values,
-          formStage: "PREVIEW",
+      if (
+        this.state.settings.selectedAudioDevice === "" &&
+        this.state.settings.selectedVideoDevice === ""
+      ) {
+        console.log("Showing preview");
+        this.updateDeviceList(() => {
+          this.setState({
+            ...this.state,
+            formValues: values,
+            formStage: "PREVIEW",
+          });
         });
-      });
+      } else {
+        console.log("Let's go to conference");
+        const handleLogin = this.props.handleLogin;
+        handleLogin({
+          displayName: values.displayName
+            ? values.displayName
+            : this.displayName,
+          roomId: values.roomId ? values.roomId : this.roomId,
+          //TODO audioOnly should be moved into settings
+          //TODO this is repeated from componentdidmount
+          audioOnly: this.state.audioOnly,
+          videoOnly: this.state.videoOnly,
+          permissionGranted: this.state.permissionGranted,
+          selectedAudioDevice: this.state.settings.selectedAudioDevice,
+          selectedVideoDevice: this.state.settings.selectedVideoDevice,
+        });
+      }
     } else {
       this.setState({
         ...this.state,
@@ -519,6 +569,7 @@ class LoginForm extends React.Component {
 
   updateDevice = (name, value) => {
     this.state.settings[name] = value;
+    //console.log("Inside updateDevice");
     this.startPreview(false);
   };
 
@@ -667,7 +718,9 @@ class LoginForm extends React.Component {
                   <div className="mt-6">
                     <button
                       className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
-                      onClick={this.startPreview(true)}
+                      onClick={() => {
+                        this.startPreview(true);
+                      }}
                     >
                       <span className="absolute left-0 inset-y-0 flex items-center pl-3"></span>
                       Prompt permission dialog

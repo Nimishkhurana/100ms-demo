@@ -148,6 +148,12 @@ class App extends React.Component {
     reactLocalStorage.remove("loginInfo");
     reactLocalStorage.setObject("loginInfo", values);
     await this.client.join(values.roomId, { name: values.displayName });
+    //TODO ugly hack
+    window.history.pushState(
+      {},
+      "100ms",
+      "https://" + window.location.host + "/?room=" + values.roomId
+    );
     this.setState({
       login: true,
       loading: false,
