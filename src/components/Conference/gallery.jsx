@@ -1,7 +1,7 @@
-import React from "react"
-import { LocalVideoView, MainVideoView } from "../../videoview"
-import ContainerDimensions from "react-container-dimensions"
-import { largestRect } from "rect-scaler"
+import React from "react";
+import { LocalVideoView, MainVideoView } from "../../videoview";
+import ContainerDimensions from "react-container-dimensions";
+import { largestRect } from "rect-scaler";
 
 const Gallery = ({
   id,
@@ -15,17 +15,16 @@ const Gallery = ({
   onPin,
   loginInfo,
 }) => {
-
   return (
     <>
       <div
-        className={`absolute top-0 bottom-0 w-full flex flex-wrap justify-center items-center`}
+        className={`relative w-full flex flex-wrap justify-center items-center`}
         style={{ height: "calc(100vh - 128px)", backgroundColor: "#1a1619" }}
       >
         <ContainerDimensions>
           {({ width, height }) => {
-            let w = "100%"
-            let h = "100%"
+            let w = "100%";
+            let h = "100%";
             if (videoCount > 0) {
               let largestRectObj = largestRect(
                 width,
@@ -33,9 +32,9 @@ const Gallery = ({
                 videoCount,
                 160,
                 90
-              )
-              w = largestRectObj.width
-              h = largestRectObj.height
+              );
+              w = largestRectObj.width;
+              h = largestRectObj.height;
             }
 
             return (
@@ -51,7 +50,7 @@ const Gallery = ({
                       videoMuted={videoMuted}
                       videoType="localVideo"
                       onPin={() => {
-                        onPin(id + "-video")
+                        onPin(id + "-video");
                       }}
                     />
                   </div>
@@ -63,36 +62,36 @@ const Gallery = ({
                         id={item.mid}
                         stream={item.stream}
                         onPin={() => {
-                          onPin(item.mid)
+                          onPin(item.mid);
                         }}
                       />
                     </div>
-                  )
+                  );
                 })}
 
                 {localScreen && (
                   <div style={{ height: h, width: w }}>
                     <LocalVideoView
                       id={id + "-screen"}
-                      label="Screen Sharing (You)"
+                      label="Your Screen"
                       client={client}
                       stream={localScreen}
                       audioMuted={false}
                       videoMuted={false}
                       videoType="localScreen"
                       onPin={() => {
-                        onPin(id + "-screen")
+                        onPin(id + "-screen");
                       }}
                     />
                   </div>
                 )}
               </>
-            )
+            );
           }}
         </ContainerDimensions>
       </div>
     </>
-  )
-}
+  );
+};
 
-export { Gallery }
+export { Gallery };

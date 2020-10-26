@@ -1,30 +1,38 @@
-import React from "react"
-import PinIcon from "mdi-react/PinIcon"
-import PinOffIcon from "mdi-react/PinOffIcon"
+import React from "react";
+import PinIcon from "mdi-react/PinIcon";
+import PinOffIcon from "mdi-react/PinOffIcon";
 
 class MainVideoView extends React.Component {
   componentDidMount = () => {
-    const { stream } = this.props
-    this.video.srcObject = stream
-  }
+    const { stream } = this.props;
+    this.video.srcObject = stream;
+  };
 
   componentWillUnmount = () => {
-    this.video.srcObject = null
-  }
+    this.video.srcObject = null;
+  };
 
   render = () => {
-    const { id, stream, vidFit, onPin, onUnpin, label } = this.props
+    const {
+      id,
+      stream,
+      vidFit,
+      onPin,
+      onUnpin,
+      label,
+      pinned = false,
+    } = this.props;
     return (
-      <div className="w-full max-w-full h-full max-h-full flex justify-center items-center relative">
+      <div className="w-full max-w-full h-full max-h-full flex justify-center items-center relative p-1">
         <video
           ref={(ref) => {
-            this.video = ref
+            this.video = ref;
           }}
           id={id}
           autoPlay
           playsInline
           muted={false}
-          className={"w-full h-auto max-h-full"}
+          className={`w-full h-full ${pinned ? "" : "object-cover"}`}
         />
         <div className="absolute top-0 right-0 pt-2 w-full flex justify-center items-center">
           <span className="px-2 py-1 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75">
@@ -48,8 +56,8 @@ class MainVideoView extends React.Component {
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 }
 
-export default MainVideoView
+export default MainVideoView;

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Icon,
   Input,
@@ -8,40 +8,40 @@ import {
   Avatar,
   Badge,
   Tooltip,
-} from "antd"
-import { Formik, Form, Field, ErrorMessage } from "formik"
-import { LocalStream } from "brytecam-sdk-js"
-import { reactLocalStorage } from "reactjs-localstorage"
+} from "antd";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { LocalStream } from "brytecam-sdk-js";
+import { reactLocalStorage } from "reactjs-localstorage";
 import {
   updateInputDevices,
   SingleSelect,
   closeMediaStream,
   attachMediaStream,
-} from "../src/utils"
-import SoundMeter from "./settings/soundmeter"
-import logo from "../public/brytecam-logo.png"
+} from "../src/utils";
+import SoundMeter from "./settings/soundmeter";
+import logo from "../public/brytecam-logo.png";
 
-import "../styles/css/login.scss"
+import "../styles/css/login.scss";
 
-import CheckIcon from "mdi-react/CheckIcon"
-import ShuffleIcon from "mdi-react/ShuffleIcon"
-import NetworkIcon from "mdi-react/NetworkIcon"
-import ServerNetworkIcon from "mdi-react/ServerNetworkIcon"
-import GoogleClassroomIcon from "mdi-react/GoogleClassroomIcon"
-import ProgressClockIcon from "mdi-react/ProgressClockIcon"
-import ProgressAlertIcon from "mdi-react/ProgressAlertIcon"
-import ProgressCloseIcon from "mdi-react/ProgressCloseIcon"
-import VideoCheckIcon from "mdi-react/VideoCheckIcon"
-import UploadLockIcon from "mdi-react/UploadLockIcon"
-import SwapVerticalIcon from "mdi-react/SwapVerticalIcon"
-import DownloadLockIcon from "mdi-react/DownloadLockIcon"
+import CheckIcon from "mdi-react/CheckIcon";
+import ShuffleIcon from "mdi-react/ShuffleIcon";
+import NetworkIcon from "mdi-react/NetworkIcon";
+import ServerNetworkIcon from "mdi-react/ServerNetworkIcon";
+import GoogleClassroomIcon from "mdi-react/GoogleClassroomIcon";
+import ProgressClockIcon from "mdi-react/ProgressClockIcon";
+import ProgressAlertIcon from "mdi-react/ProgressAlertIcon";
+import ProgressCloseIcon from "mdi-react/ProgressCloseIcon";
+import VideoCheckIcon from "mdi-react/VideoCheckIcon";
+import UploadLockIcon from "mdi-react/UploadLockIcon";
+import SwapVerticalIcon from "mdi-react/SwapVerticalIcon";
+import DownloadLockIcon from "mdi-react/DownloadLockIcon";
 
 const TEST_STEPS = {
   biz: { title: "Biz Websocket", icon: <ServerNetworkIcon /> },
   lobby: { title: "Joining Test Room", icon: <GoogleClassroomIcon /> },
   publish: { title: "Publish", icon: <UploadLockIcon /> },
   subscribe: { title: "Subscription", icon: <DownloadLockIcon /> },
-}
+};
 
 const ICONS = {
   connected: CheckIcon,
@@ -53,13 +53,13 @@ const ICONS = {
   joined: CheckIcon,
   published: CheckIcon,
   subscribed: CheckIcon,
-}
+};
 
 const DEFAULT_STATE = {
   testing: null,
   success: null,
   steps: TEST_STEPS,
-}
+};
 const ConnectionStep = ({ step }) => {
   const color =
     step.status === "pending"
@@ -68,8 +68,8 @@ const ConnectionStep = ({ step }) => {
       ? "orange"
       : step.status === "error"
       ? "red"
-      : "green"
-  const Icon = ICONS[step.status]
+      : "green";
+  const Icon = ICONS[step.status];
 
   return (
     <div className="test-connection-step">
@@ -87,41 +87,41 @@ const ConnectionStep = ({ step }) => {
         </Tooltip>
       </Badge>
     </div>
-  )
-}
+  );
+};
 
 class LoginForm extends React.Component {
-  state = DEFAULT_STATE
-  testUpdateLoop = null
-  localStorage = reactLocalStorage.getObject("loginInfo")
+  state = DEFAULT_STATE;
+  testUpdateLoop = null;
+  localStorage = reactLocalStorage.getObject("loginInfo");
   roomId =
     this.getRequest() && this.getRequest().hasOwnProperty("room")
       ? this.getRequest().room
-      : ""
+      : "";
   displayName = this.localStorage
     ? this.localStorage.displayName
       ? this.localStorage.displayName
       : ""
-    : ""
+    : "";
   audioOnly = this.localStorage
     ? this.localStorage.audioOnly
       ? this.localStorage.audioOnly
       : false
-    : false
+    : false;
   videoOnly = this.localStorage
     ? this.localStorage.videoOnly
       ? this.localStorage.videoOnly
       : false
-    : false
+    : false;
   permissionGranted = this.localStorage
     ? this.localStorage.permissionGranted
       ? this.localStorage.permissionGranted
       : false
-    : false
+    : false;
 
   componentDidMount = () => {
     //const { form } = this.props;
-    console.log("window.location:" + window.location)
+    console.log("window.location:" + window.location);
     console.log(
       "url:" +
         window.location.protocol +
@@ -129,9 +129,9 @@ class LoginForm extends React.Component {
         "  " +
         window.location.pathname +
         window.location.query
-    )
-    console.log("Making test client")
-    let formStage = "NAME"
+    );
+    console.log("Making test client");
+    let formStage = "NAME";
 
     this.state.settings =
       reactLocalStorage.getObject("settings").codec !== undefined
@@ -144,37 +144,37 @@ class LoginForm extends React.Component {
             bandwidth: 256,
             codec: "vp8",
             isDevMode: true,
-          }
+          };
 
-    this.state.audioOnly = this.audioOnly
-    this.state.videoOnly = this.videoOnly
-    this.state.permissionGranted = this.permissionGranted
+    this.state.audioOnly = this.audioOnly;
+    this.state.videoOnly = this.videoOnly;
+    this.state.permissionGranted = this.permissionGranted;
     this.state.permissionText =
-      "We will need your permission to use your webcam and microphone."
+      "We will need your permission to use your webcam and microphone.";
 
     if (this.displayName !== "" && this.roomId !== "") {
       if (this.state.permissionGranted) {
         this.updateDeviceList(() => {
-          formStage = "PREVIEW"
+          formStage = "PREVIEW";
           this.setState({
             ...this.state,
             formStage: formStage,
-          })
-        })
+          });
+        });
       } else {
-        formStage = "PERMISSION"
+        formStage = "PERMISSION";
         this.setState({
           ...this.state,
           formStage: formStage,
-        })
+        });
       }
     } else {
       this.setState({
         ...this.state,
         formStage: formStage,
-      })
+      });
     }
-  }
+  };
 
   componentDidUpdate(prevProps, prevState) {
     if (
@@ -182,93 +182,93 @@ class LoginForm extends React.Component {
       prevState.formStage !== this.state.formStage
     ) {
       if (this.state.formStage === "PREVIEW") {
-        this.startPreview(false)
+        this.startPreview(false);
       }
     }
   }
 
   componentWillUnmount = () => {
-    this._cleanup()
-  }
+    this._cleanup();
+  };
 
   _notification = (message, description) => {
     notification.info({
       message: message,
       description: description,
       placement: "bottomRight",
-    })
-  }
+    });
+  };
 
   _testStep(step, status, info = null) {
-    const prior = this.state.steps[step]
+    const prior = this.state.steps[step];
     this.setState({
       steps: {
         ...this.state.steps,
         [step]: { ...prior, status, info },
       },
-    })
-    console.log("Test Connection:", step, status, info)
+    });
+    console.log("Test Connection:", step, status, info);
   }
 
   _stopMediaStream = async (stream) => {
-    let tracks = stream.getTracks()
+    let tracks = stream.getTracks();
     for (let i = 0, len = tracks.length; i < len; i++) {
-      await tracks[i].stop()
+      await tracks[i].stop();
     }
-  }
+  };
 
   _cleanup = async () => {
-    if (testUpdateLoop) clearInterval(testUpdateLoop)
+    if (testUpdateLoop) clearInterval(testUpdateLoop);
     if (this.stream) {
-      await this._stopMediaStream(this.stream)
-      await this.stream.unpublish()
+      await this._stopMediaStream(this.stream);
+      await this.stream.unpublish();
     }
-    if (this.client) await this.client.leave()
-  }
+    if (this.client) await this.client.leave();
+  };
 
   _testConnection = async () => {
-    this.setState({ test: true })
-    this._testStep("biz", "pending")
-    let client = this.props.createClient()
-    let testUpdateLoop = null
+    this.setState({ test: true });
+    this._testStep("biz", "pending");
+    let client = this.props.createClient();
+    let testUpdateLoop = null;
 
     window.onunload = () => {
-      cleanup()
-    }
+      cleanup();
+    };
 
     client.on("transport-open", async () => {
-      this._testStep("biz", "connected", client.url)
-      this._testStep("lobby", "pending")
-      const rid = "lobby-" + Math.floor(1000000 * Math.random())
-      await this.client.join(rid, { name: "lobby-user" })
-      this._testStep("lobby", "joined", "room id=" + rid)
+      this._testStep("biz", "connected", client.url);
+      this._testStep("lobby", "pending");
+      const rid = "lobby-" + Math.floor(1000000 * Math.random());
+      await this.client.join(rid, { name: "lobby-user" });
+      this._testStep("lobby", "joined", "room id=" + rid);
       const localStream = await LocalStream.getUserMedia({
         codec: "VP8",
         resolution: "hd",
         bandwidth: 1024,
         audio: true,
         video: true,
-      })
+      });
 
-      this._testStep("publish", "pending")
+      this._testStep("publish", "pending");
 
-      const publish = await client.publish(localStream)
+      const publish = await client.publish(localStream);
 
-      let nominated = null
+      let nominated = null;
 
       const testConnectionUpdateLoop = () => {
-        updateConnectionStats()
-        const subStatus = this.state.steps.subscribe.status
+        updateConnectionStats();
+        const subStatus = this.state.steps.subscribe.status;
         if (subStatus === "pending" || subStatus === "error") {
-          trySubscribe()
+          trySubscribe();
         }
-      }
-      testUpdateLoop = setInterval(testConnectionUpdateLoop, 3000)
-      setTimeout(testConnectionUpdateLoop, 150)
+      };
+      testUpdateLoop = setInterval(testConnectionUpdateLoop, 3000);
+      setTimeout(testConnectionUpdateLoop, 150);
 
       const trySubscribe = async () => {
-        const mid = client.local.mid
-        let tracks = {}
+        const mid = client.local.mid;
+        let tracks = {};
 
         try {
           for (let track of localStream.getTracks()) {
@@ -278,57 +278,57 @@ class LoginForm extends React.Component {
               id: track.id,
               pt: client.local.transport.rtp[0].payload,
               type: track.kind,
-            }
+            };
           }
         } catch (e) {
-          console.log("No tracks yet...")
+          console.log("No tracks yet...");
         }
 
-        if (!mid) return
-        client.knownStreams.set(mid, objToStrMap(tracks))
+        if (!mid) return;
+        client.knownStreams.set(mid, objToStrMap(tracks));
 
-        console.log("Trying to subscribe to ...", mid)
+        console.log("Trying to subscribe to ...", mid);
 
         try {
-          let stream = await client.subscribe(mid)
-          this._testStep("subscribe", "subscribed", "mid: " + mid)
+          let stream = await client.subscribe(mid);
+          this._testStep("subscribe", "subscribed", "mid: " + mid);
         } catch (e) {
-          console.log(e)
-          this._testStep("subscribe", "error")
+          console.log(e);
+          this._testStep("subscribe", "error");
         }
-      }
+      };
 
       const updateConnectionStats = async () => {
-        const report = await client.local.transport.pc.getStats()
-        const stats = {}
+        const report = await client.local.transport.pc.getStats();
+        const stats = {};
         for (let [name, stat] of report) {
-          stats[name] = stat
+          stats[name] = stat;
           if (stat.nominated) {
-            nominated = stat
+            nominated = stat;
           }
         }
 
         if (nominated) {
-          const latency = nominated.currentRoundTripTime
-          const availableBitrate = nominated.availableOutgoingBitrate
+          const latency = nominated.currentRoundTripTime;
+          const availableBitrate = nominated.availableOutgoingBitrate;
           const info =
             `${localStream.getTracks().length} tracks, ${Math.floor(
               latency / 1000.0
             )}ms latency` +
             (availableBitrate
               ? `, ${Math.floor(availableBitrate / 1024)}kbps available`
-              : "")
-          this._testStep("publish", "published", info)
+              : "");
+          this._testStep("publish", "published", info);
         } else {
-          this._testStep("publish", "no candidates")
+          this._testStep("publish", "no candidates");
         }
-      }
+      };
 
-      this._testStep("subscribe", "pending")
-    })
+      this._testStep("subscribe", "pending");
+    });
 
-    window.test_client = this.client = client
-  }
+    window.test_client = this.client = client;
+  };
 
   updateDeviceList = (callback) => {
     updateInputDevices().then((data) => {
@@ -336,13 +336,13 @@ class LoginForm extends React.Component {
         this.state.settings.selectedAudioDevice === "" &&
         data.audioDevices.length > 0
       ) {
-        this.state.settings.selectedAudioDevice = data.audioDevices[0].deviceId
+        this.state.settings.selectedAudioDevice = data.audioDevices[0].deviceId;
       }
       if (
         this.state.settings.selectedVideoDevice === "" &&
         data.videoDevices.length > 0
       ) {
-        this.state.settings.selectedVideoDevice = data.videoDevices[0].deviceId
+        this.state.settings.selectedVideoDevice = data.videoDevices[0].deviceId;
       }
 
       // if (
@@ -359,12 +359,12 @@ class LoginForm extends React.Component {
         videoDevices: data.videoDevices,
         audioDevices: data.audioDevices,
         audioOutputDevices: data.audioOutputDevices,
-      })
+      });
       if (callback) {
-        callback()
+        callback();
       }
-    })
-  }
+    });
+  };
 
   handleNameSubmit = (values) => {
     if (this.state.permissionGranted) {
@@ -373,14 +373,14 @@ class LoginForm extends React.Component {
           ...this.state,
           formValues: values,
           formStage: "PREVIEW",
-        })
-      })
+        });
+      });
     } else {
       this.setState({
         ...this.state,
         formValues: values,
         formStage: "PERMISSION",
-      })
+      });
     }
 
     // this.state.audioDevices.map((device, index) => {
@@ -393,10 +393,10 @@ class LoginForm extends React.Component {
     //         console.log("Selected videoDevice::" + JSON.stringify(device));
     //     }
     // });
-  }
+  };
 
   handleSubmit = (values) => {
-    const handleLogin = this.props.handleLogin
+    const handleLogin = this.props.handleLogin;
 
     handleLogin({
       displayName: this.state.formValues
@@ -410,27 +410,27 @@ class LoginForm extends React.Component {
       permissionGranted: this.state.permissionGranted,
       selectedAudioDevice: values.selectedAudioDevice,
       selectedVideoDevice: values.selectedVideoDevice,
-    })
-  }
+    });
+  };
 
   soundMeterProcess = () => {
-    var val = window.soundMeter.instant.toFixed(2) * 700 + 1
-    this.setState({ ...this.state, audioLevel: val })
+    var val = window.soundMeter.instant.toFixed(2) * 700 + 1;
+    this.setState({ ...this.state, audioLevel: val });
     //      if (this.state.visible)
-    setTimeout(this.soundMeterProcess, 100)
-  }
+    setTimeout(this.soundMeterProcess, 100);
+  };
 
   startPreview = (permissionTestMode = false) => {
     // if (window.stream) {
     //     closeMediaStream(window.stream);
     // }
-    let audioSource = this.state.settings.selectedAudioDevice
-    let videoSource = this.state.settings.selectedVideoDevice
-    let videoElement, soundMeterProcess
+    let audioSource = this.state.settings.selectedAudioDevice;
+    let videoSource = this.state.settings.selectedVideoDevice;
+    let videoElement, soundMeterProcess;
     if (!permissionTestMode) {
-      videoElement = document.getElementById("previewVideo")
-      this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext)
-      soundMeterProcess = this.soundMeterProcess
+      videoElement = document.getElementById("previewVideo");
+      this.soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
+      soundMeterProcess = this.soundMeterProcess;
     }
     let constraints = {
       audio: this.state.videoOnly
@@ -439,51 +439,51 @@ class LoginForm extends React.Component {
       video: this.state.audioOnly
         ? false
         : { deviceId: videoSource ? { exact: videoSource } : undefined },
-    }
+    };
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(function (stream) {
         if (!permissionTestMode) {
-          window.stream = stream // make stream available to console
+          window.stream = stream; // make stream available to console
           //videoElement.srcObject = stream;
-          attachMediaStream(videoElement, stream)
+          attachMediaStream(videoElement, stream);
           //TODO this throws an error when audio only is chosen. Handle it
           // if(this && !this.state.videoOnly){
-          soundMeter.connectToSource(stream)
-          setTimeout(soundMeterProcess, 100)
+          soundMeter.connectToSource(stream);
+          setTimeout(soundMeterProcess, 100);
           // }
         }
-        return navigator.mediaDevices.enumerateDevices()
+        return navigator.mediaDevices.enumerateDevices();
         // Refresh button list in case labels have become available
       })
       .then((devices) => {
         //TODO combine with updateInputDevices
-        let videoDevices = []
-        let audioDevices = []
-        let audioOutputDevices = []
+        let videoDevices = [];
+        let audioDevices = [];
+        let audioOutputDevices = [];
         for (let device of devices) {
           if (device.kind === "videoinput") {
-            videoDevices.push(device)
+            videoDevices.push(device);
           } else if (device.kind === "audioinput") {
-            audioDevices.push(device)
+            audioDevices.push(device);
           } else if (device.kind === "audiooutput") {
-            audioOutputDevices.push(device)
+            audioOutputDevices.push(device);
           }
         }
-        let data = { videoDevices, audioDevices, audioOutputDevices }
+        let data = { videoDevices, audioDevices, audioOutputDevices };
         if (
           this.state.settings.selectedAudioDevice === "" &&
           data.audioDevices.length > 0
         ) {
           this.state.settings.selectedAudioDevice =
-            data.audioDevices[0].deviceId
+            data.audioDevices[0].deviceId;
         }
         if (
           this.state.settings.selectedVideoDevice === "" &&
           data.videoDevices.length > 0
         ) {
           this.state.settings.selectedVideoDevice =
-            data.videoDevices[0].deviceId
+            data.videoDevices[0].deviceId;
         }
         this.setState({
           ...this.state,
@@ -491,39 +491,39 @@ class LoginForm extends React.Component {
           videoDevices: data.videoDevices,
           permissionGranted: true,
           formStage: "PREVIEW",
-        })
+        });
       })
       .catch((error) => {
         //TODO - look for only permission error. Rest of the errors should be handled
-        console.log(error)
+        console.log(error);
         this.setState({
           ...this.state,
           permissionText:
             "You won't be able to access the meeting unless you grant camera and mic permissions",
-        })
-      })
-  }
+        });
+      });
+  };
 
   getRequest() {
-    let url = location.search
-    let theRequest = new Object()
+    let url = location.search;
+    let theRequest = new Object();
     if (url.indexOf("?") != -1) {
-      let str = url.substr(1)
-      let strs = str.split("&")
+      let str = url.substr(1);
+      let strs = str.split("&");
       for (let i = 0; i < strs.length; i++) {
-        theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1])
+        theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
       }
     }
-    return theRequest
+    return theRequest;
   }
 
   updateDevice = (name, value) => {
-    this.state.settings[name] = value
-    this.startPreview(false)
-  }
+    this.state.settings[name] = value;
+    this.startPreview(false);
+  };
 
   render() {
-    const steps = this.state.steps
+    const steps = this.state.steps;
 
     return (
       <div className="relative -mt-24 z-0">
@@ -539,20 +539,20 @@ class LoginForm extends React.Component {
                 displayName: this.displayName,
               }}
               validate={(values) => {
-                const errors = {}
+                const errors = {};
                 if (!values.displayName) {
-                  errors.displayName = "Required"
+                  errors.displayName = "Required";
                 }
                 if (!values.roomId) {
-                  errors.roomId = "Required"
+                  errors.roomId = "Required";
                 }
-                return errors
+                return errors;
               }}
               onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
-                  this.handleNameSubmit(values)
-                  setSubmitting(false)
-                }, 400)
+                  this.handleNameSubmit(values);
+                  setSubmitting(false);
+                }, 400);
               }}
             >
               {({ values, initialValues }) => (
@@ -695,20 +695,20 @@ class LoginForm extends React.Component {
                 videoOnly: this.state.videoOnly,
               }}
               validate={(values) => {
-                const errors = {}
+                const errors = {};
                 // if (!values.displayName) {
                 //   errors.displayName = 'Required';
                 // }
                 // if (!values.roomId){
                 //   errors.roomId = 'Required';
                 // }
-                return errors
+                return errors;
               }}
               onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
-                  this.handleSubmit(values)
-                  setSubmitting(false)
-                }, 400)
+                  this.handleSubmit(values);
+                  setSubmitting(false);
+                }, 400);
               }}
             >
               {({ values, initialValues }) => (
@@ -756,7 +756,7 @@ class LoginForm extends React.Component {
                               this.setState({
                                 ...this.state,
                                 formStage: "NAME",
-                              })
+                              });
                             }}
                           >
                             Change
@@ -782,11 +782,11 @@ class LoginForm extends React.Component {
                             }) => (
                               <button
                                 onClick={(e) => {
-                                  e.preventDefault()
-                                  const initialValue = values.audioOnly
-                                  setFieldValue("audioOnly", !initialValue)
-                                  this.state.audioOnly = !initialValue
-                                  this.startPreview(false)
+                                  e.preventDefault();
+                                  const initialValue = values.audioOnly;
+                                  setFieldValue("audioOnly", !initialValue);
+                                  this.state.audioOnly = !initialValue;
+                                  this.startPreview(false);
                                 }}
                                 className={`py-1 px-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 active:bg-indigo-700 transition duration-150 ease-in-out ${
                                   !values.audioOnly
@@ -843,11 +843,11 @@ class LoginForm extends React.Component {
                             {({ form: { setFieldValue, values } }) => (
                               <button
                                 onClick={(e) => {
-                                  e.preventDefault()
-                                  const initialValue = values.videoOnly
-                                  setFieldValue("videoOnly", !initialValue)
-                                  this.state.videoOnly = !initialValue
-                                  this.startPreview(false)
+                                  e.preventDefault();
+                                  const initialValue = values.videoOnly;
+                                  setFieldValue("videoOnly", !initialValue);
+                                  this.state.videoOnly = !initialValue;
+                                  this.startPreview(false);
                                 }}
                                 className={`ml-1 py-1 px-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out ${
                                   !values.videoOnly
@@ -990,18 +990,18 @@ class LoginForm extends React.Component {
           </>
         )}
       </div>
-    )
+    );
   }
 }
 
 function objToStrMap(obj) {
-  const strMap = new Map()
+  const strMap = new Map();
   for (const k of Object.keys(obj)) {
-    strMap.set(k, obj[k])
+    strMap.set(k, obj[k]);
   }
-  return strMap
+  return strMap;
 }
 
-const WrappedLoginForm = LoginForm
+const WrappedLoginForm = LoginForm;
 //const WrappedLoginForm = Form.create({ name: "login" })(LoginForm);
-export default WrappedLoginForm
+export default WrappedLoginForm;

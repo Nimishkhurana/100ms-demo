@@ -1,28 +1,28 @@
-import React from "react"
-import PinIcon from "mdi-react/PinIcon"
-import PinOffIcon from "mdi-react/PinOffIcon"
+import React from "react";
+import PinIcon from "mdi-react/PinIcon";
+import PinOffIcon from "mdi-react/PinOffIcon";
 
 class LocalVideoView extends React.Component {
   constructor() {
-    super()
+    super();
     this.state = {
       minimize: false,
-    }
+    };
   }
 
   componentDidMount = () => {
-    const { stream } = this.props
-    this.video.srcObject = stream
-  }
+    const { stream } = this.props;
+    this.video.srcObject = stream;
+  };
 
   componentWillUnmount = () => {
-    this.video.srcObject = null
-  }
+    this.video.srcObject = null;
+  };
 
   onMinimizeClick = () => {
-    let minimize = !this.state.minimize
-    this.setState({ minimize })
-  }
+    let minimize = !this.state.minimize;
+    this.setState({ minimize });
+  };
 
   render = () => {
     const {
@@ -33,29 +33,30 @@ class LocalVideoView extends React.Component {
       videoType,
       onPin,
       onUnpin,
-    } = this.props
+      pinned = false,
+    } = this.props;
 
-    let minIconStyle = "local-video-icon-layout"
+    let minIconStyle = "local-video-icon-layout";
     if (videoType == "localVideo") {
-      minIconStyle = "local-video-min-layout"
+      minIconStyle = "local-video-min-layout";
     }
 
     return (
       <div
         className={`local-${
           videoType === "localVideo" ? "video" : "screen"
-        }-container w-full max-w-full h-full max-h-full flex justify-center items-center relative`}
+        }-container w-full max-w-full h-full max-h-full flex justify-center items-center relative p-1`}
       >
         <video
           ref={(ref) => {
-            this.video = ref
+            this.video = ref;
           }}
           id={id}
           autoPlay
           playsInline
           muted={true}
           style={{ display: `${this.state.minimize ? "none" : ""}` }}
-          className="w-full h-auto max-h-full"
+          className={`w-full h-full  ${pinned ? "" : "object-cover"}`}
         />
         <div
           className={`${
@@ -84,8 +85,8 @@ class LocalVideoView extends React.Component {
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 }
 
-export default LocalVideoView
+export default LocalVideoView;

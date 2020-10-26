@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
   return (
@@ -17,7 +17,7 @@ const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
         <span className="text-xs text-indigo-100">{label}</span>
       </div>
     </button>
-  )
-}
+  );
+};
 
-export { ControlButton }
+export { ControlButton };

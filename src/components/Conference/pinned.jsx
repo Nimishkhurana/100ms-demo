@@ -1,5 +1,5 @@
-import React from "react"
-import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview"
+import React from "react";
+import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview";
 
 const Pinned = ({
   id,
@@ -11,44 +11,47 @@ const Pinned = ({
   streams,
   onUnpin,
   pinned,
+  loginInfo,
 }) => {
-  console.log(pinned, streams)
-  const isLocalScreenPinned = localScreen && pinned === id + "-screen"
-  const isLocalStreamPinned = localStream && pinned === id + "-video"
-  const pinnedStream = streams.filter((s) => s.sid === pinned)[0]
-  const newStreams = streams.filter((s) => s.sid !== pinned)
+  console.log(pinned, streams);
+  const isLocalScreenPinned = localScreen && pinned === id + "-screen";
+  const isLocalStreamPinned = localStream && pinned === id + "-video";
+  const pinnedStream = streams.filter((s) => s.sid === pinned)[0];
+  const newStreams = streams.filter((s) => s.sid !== pinned);
 
   return (
     <div
-      className={`absolute top-0 bottom-0 w-full flex items-center`}
+      className={`relative top-0 bottom-0 w-full flex items-center`}
       style={{ height: "calc(100vh - 128px)", backgroundColor: "#1a1619" }}
     >
-      <div className="w-4/5">
+      <div className="w-4/5 h-full">
         {isLocalStreamPinned && (
           <LocalVideoView
             id={id + "-video"}
-            label="Local Stream"
+            label={`${loginInfo.displayName} (You)`}
             client={client}
             stream={localStream}
             audioMuted={audioMuted}
             videoMuted={videoMuted}
+            pinned
             videoType="localVideo"
             onUnpin={() => {
-              onUnpin()
+              onUnpin();
             }}
           />
         )}
         {isLocalScreenPinned && (
           <LocalVideoView
             id={id + "-screen"}
-            label="Local Screen"
+            label="Your Screen"
             client={client}
             stream={localScreen}
             audioMuted={audioMuted}
+            pinned
             videoMuted={videoMuted}
             videoType="localScreen"
             onUnpin={() => {
-              onUnpin()
+              onUnpin();
             }}
           />
         )}
@@ -57,13 +60,14 @@ const Pinned = ({
             key={pinnedStream.mid}
             id={pinnedStream.mid}
             stream={pinnedStream.stream}
+            pinned
             onUnpin={onUnpin}
           />
         )}
       </div>
-      <div className="w-1/5">
+      <div className="w-1/5 h-full overflow-scroll py-1 flex flex-col justify-center items-center">
         {newStreams.map((item, index) => (
-          <div key={`stream-${index}`} className="flex flex-col">
+          <div key={`stream-${index}`} className="w-full flex flex-col">
             <SmallVideoView key={item.mid} id={item.mid} stream={item.stream} />
           </div>
         ))}
@@ -71,7 +75,7 @@ const Pinned = ({
           <SmallVideoView
             id={id + "-screen"}
             stream={localScreen}
-            label="local Screen"
+            label="Your Screen"
             isMuted={true}
           />
         )}
@@ -79,13 +83,13 @@ const Pinned = ({
           <SmallVideoView
             id={id + "-video"}
             stream={localStream}
-            label="local Stream"
+            label={`${loginInfo.displayName} (You)`}
             isMuted={true}
           />
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export { Pinned }
+export { Pinned };
