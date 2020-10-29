@@ -1,7 +1,7 @@
 import firebase, { firestore } from './firebase';
 
 const roomsCollection = firestore.collection('rooms');
-class State {
+class PeerState {
   constructor(peerInfo) {
     if (!peerInfo.mid) throw new Error('stream mid is needed'); // Figure out a way to handle this error if it occurs
 
@@ -43,12 +43,13 @@ class State {
       { merge: true }
     );
   }
-
-  listen(cb, errorCb) {
-    roomsCollection.doc(this.rid).onSnapshot(doc => {
-      cb(doc.data());
-    }, errorCb);
-  }
 }
 
-export default State;
+const listenToRoomState = (rid, cb, errorCb) => {
+  roomsCollection.doc(rid).onSnapshot(doc => {
+    cb(doc.data());
+  }, errorCb);
+};
+
+export default PeerState;
+export { listenToRoomState };

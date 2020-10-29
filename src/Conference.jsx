@@ -5,7 +5,7 @@ import { Client, LocalStream, RemoteStream } from 'brytecam-sdk-js';
 import '../styles/css/conference.scss';
 import { Gallery } from './components/Conference/gallery';
 import { Pinned } from './components/Conference/pinned';
-import PeerState from './utils/state';
+import PeerState, { listenToRoomState } from './utils/state';
 
 const modes = {
   GALLERY: 'GALLERY',
@@ -30,12 +30,27 @@ class Conference extends React.Component {
     const { client } = this.props;
     client.on('stream-add', this._handleAddStream);
     client.on('stream-remove', this._handleRemoveStream);
+    this.roomStateUnsubscribe = listenToRoomState(
+      client.rid,
+      roomState => {
+        console.log(roomState.peers);
+        const streamsMap = Object.values(roomState.peers).reduce((a, c) => {
+          return { ...a, ...c.streams };
+        }, {});
+        const newStreams = this.state.streams.map(stream => {
+          return { ...stream, ...streamsMap[stream.mid] };
+        });
+        this.setState({ streams: newStreams });
+      },
+      console.error
+    );
   };
 
   componentWillUnmount = () => {
     const { client } = this.props;
     client.off('stream-add', this._handleAddStream);
     client.off('stream-remove', this._handleRemoveStream);
+    this.roomStateUnsubscribe();
   };
 
   cleanUp = async () => {
@@ -151,7 +166,6 @@ class Conference extends React.Component {
             audioEnabled: true,
             videoEnabled: true,
           });
-          this.peerState.listen(console.log, console.error);
         }, 500);
       } else {
         if (localStream) {

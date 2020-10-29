@@ -64,6 +64,9 @@ const Gallery = ({
                         onPin={() => {
                           onPin(item.mid);
                         }}
+                        audioEnabled={item.audioEnabled}
+                        videoEnabled={item.videoEnabled}
+                        screenshare={item.screenshare}
                       />
                     </div>
                   );

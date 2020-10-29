@@ -1,8 +1,8 @@
 import React from 'react';
 import PinIcon from 'mdi-react/PinIcon';
 import PinOffIcon from 'mdi-react/PinOffIcon';
-import MicrophoneIcon from "mdi-react/MicrophoneIcon"
-import MicrophoneOffIcon from "mdi-react/MicrophoneOffIcon"
+import MicrophoneIcon from 'mdi-react/MicrophoneIcon';
+import MicrophoneOffIcon from 'mdi-react/MicrophoneOffIcon';
 
 class MainVideoView extends React.Component {
   componentDidMount = () => {
@@ -23,6 +23,9 @@ class MainVideoView extends React.Component {
       onUnpin,
       label,
       pinned = false,
+      audioEnabled = true,
+      videoEnabled = true,
+      screenshare = false,
     } = this.props;
     return (
       <div className="w-full max-w-full h-full max-h-full flex justify-center items-center relative p-1">
@@ -37,18 +40,18 @@ class MainVideoView extends React.Component {
           className={`w-full h-full ${pinned ? '' : ''}`}
         />
         <div className="absolute top-0 right-0 pt-2 w-full flex justify-center items-center">
-        <span
+          <span
             className="px-3 bg-indigo-900 rounded-md text-white inline-block bg-opacity-75 h-6 inline-block"
-            style={{ lineHeight: "1.5rem" }}
+            style={{ lineHeight: '1.5rem' }}
           >
             {label || stream.info.name}
           </span>
           <button
-            onClick={(e) => {
-              console.log(e, "mute/unmute")
+            onClick={e => {
+              console.log(e, 'mute/unmute');
             }}
             className={`w-6 h-6 bg-opacity-50 rounded flex items-center justify-center mx-1 ${
-              audioEnabled ? "bg-gray-800 hover:bg-indigo-500" : "bg-red-500"
+              audioEnabled ? 'bg-gray-800 hover:bg-indigo-500' : 'bg-red-500'
             }`}
           >
             {audioEnabled ? (
