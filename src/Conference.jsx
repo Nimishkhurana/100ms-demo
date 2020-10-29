@@ -1,6 +1,6 @@
 import React from 'react';
 import { Spin, notification } from 'antd';
-
+import { Controls } from './components/Controls';
 import { Client, LocalStream, RemoteStream } from 'brytecam-sdk-js';
 import '../styles/css/conference.scss';
 import { Gallery } from './components/Conference/gallery';
@@ -303,44 +303,64 @@ class Conference extends React.Component {
     if (localStream) videoCount++;
     if (localScreen) videoCount++;
 
-    return this.state.mode === modes.PINNED ? (
-      <Pinned
-        streams={streams}
-        audioMuted={audioMuted}
-        videoMuted={videoMuted}
-        videoCount={videoCount}
-        localStream={localStream}
-        localScreen={localScreen}
-        client={client}
-        id={id}
-        loginInfo={this.props.loginInfo}
-        pinned={this.state.pinned}
-        onUnpin={() => {
-          this.setState({
-            mode: modes.GALLERY,
-          });
-        }}
-        onRequest={onRequest}
-      />
-    ) : (
-      <Gallery
-        streams={streams}
-        audioMuted={audioMuted}
-        videoMuted={videoMuted}
-        videoCount={videoCount}
-        localStream={localStream}
-        localScreen={localScreen}
-        client={client}
-        id={id}
-        loginInfo={this.props.loginInfo}
-        onPin={streamId => {
-          this.setState({
-            mode: modes.PINNED,
-            pinned: streamId,
-          });
-        }}
-        onRequest={onRequest}
-      />
+    return (
+      <>
+        {this.state.mode === modes.PINNED ? (
+          <Pinned
+            streams={streams}
+            audioMuted={audioMuted}
+            videoMuted={videoMuted}
+            videoCount={videoCount}
+            localStream={localStream}
+            localScreen={localScreen}
+            client={client}
+            id={id}
+            loginInfo={this.props.loginInfo}
+            pinned={this.state.pinned}
+            onUnpin={() => {
+              this.setState({
+                mode: modes.GALLERY,
+              });
+            }}
+            onRequest={onRequest}
+          />
+        ) : (
+          <Gallery
+            streams={streams}
+            audioMuted={audioMuted}
+            videoMuted={videoMuted}
+            videoCount={videoCount}
+            localStream={localStream}
+            localScreen={localScreen}
+            client={client}
+            id={id}
+            loginInfo={this.props.loginInfo}
+            onPin={streamId => {
+              this.setState({
+                mode: modes.PINNED,
+                pinned: streamId,
+              });
+            }}
+            onRequest={onRequest}
+          />
+        )}
+        <Controls
+          isMuted={this.state.audioMuted}
+          isCameraOn={!this.state.videoMuted}
+          isScreenSharing={this.props.screenSharingEnabled}
+          onScreenToggle={this.props.onScreenToggle}
+          onLeave={this.props.onLeave}
+          onMicToggle={() => {
+            this.muteMediaTrack('audio', this.state.audioMuted);
+          }}
+          onCamToggle={() => {
+            this.muteMediaTrack('video', this.state.videoMuted);
+          }}
+          onChatToggle={this.props.onChatToggle}
+          isChatOpen={this.props.isChatOpen}
+          loginInfo={this.props.loginInfo}
+        />
+      </>
     );
   };
 }

@@ -20,8 +20,7 @@ import '../styles/css/app.scss';
 
 import LoginForm from './LoginForm';
 import Conference from './Conference';
-import { Controls } from './components/Controls';
-import { Client, Stream } from 'brytecam-sdk-js';
+import { Client } from 'brytecam-sdk-js';
 
 class App extends React.Component {
   constructor() {
@@ -381,26 +380,15 @@ class App extends React.Component {
                       ref={ref => {
                         this.conference = ref;
                       }}
-                    />
-                    <Controls
-                      isMuted={!localAudioEnabled}
-                      isCameraOn={localVideoEnabled}
                       isScreenSharing={screenSharingEnabled}
                       onScreenToggle={() =>
                         this._handleScreenSharing(!screenSharingEnabled)
                       }
                       onLeave={this._handleLeave}
-                      onMicToggle={() =>
-                        this._handleAudioTrackEnabled(!localAudioEnabled)
-                      }
-                      onCamToggle={() =>
-                        this._handleVideoTrackEnabled(!localVideoEnabled)
-                      }
                       onChatToggle={() =>
                         this._openOrCloseLeftContainer(!collapsed)
                       }
                       isChatOpen={!this.state.collapsed}
-                      loginInfo={this.state.loginInfo}
                     />
                   </div>
                 </Content>

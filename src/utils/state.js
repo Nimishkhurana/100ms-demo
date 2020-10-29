@@ -54,7 +54,7 @@ class PeerState {
   onRequest(cb, errorCb) {
     console.log('LISTENING TO REQUESTS', this.uid);
 
-    return roomsCollection
+    roomsCollection
       .doc(this.rid)
       .collection('peers')
       .doc(this.uid)
@@ -62,6 +62,14 @@ class PeerState {
         const data = doc.data();
         if (data.request && this.uid !== data.request.from) {
           cb(data.request);
+          roomsCollection
+            .doc(this.rid)
+            .collection('peers')
+            .doc(this.uid)
+            .set(
+              { request: firebase.firestore.FieldValue.delete() },
+              { merge: true }
+            );
         }
       }, errorCb);
   }
