@@ -26,6 +26,8 @@ class MainVideoView extends React.Component {
       audioEnabled = true,
       videoEnabled = true,
       screenshare = false,
+      uid,
+      onRequest,
     } = this.props;
     return (
       <div className="w-full max-w-full h-full max-h-full flex justify-center items-center relative p-1">
@@ -48,7 +50,8 @@ class MainVideoView extends React.Component {
           </span>
           <button
             onClick={e => {
-              console.log(e, 'mute/unmute');
+              console.log(e, 'mute/unmute', uid);
+              onRequest(uid, { mute: audioEnabled });
             }}
             className={`w-6 h-6 bg-opacity-50 rounded flex items-center justify-center mx-1 ${
               audioEnabled ? 'bg-gray-800 hover:bg-indigo-500' : 'bg-red-500'

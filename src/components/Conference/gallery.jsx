@@ -14,6 +14,7 @@ const Gallery = ({
   streams,
   onPin,
   loginInfo,
+  onRequest,
 }) => {
   return (
     <>
@@ -67,6 +68,8 @@ const Gallery = ({
                         audioEnabled={item.audioEnabled}
                         videoEnabled={item.videoEnabled}
                         screenshare={item.screenshare}
+                        uid={item.uid}
+                        onRequest={onRequest}
                       />
                     </div>
                   );

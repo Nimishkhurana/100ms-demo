@@ -5,7 +5,7 @@ import { Client, LocalStream, RemoteStream } from 'brytecam-sdk-js';
 import '../styles/css/conference.scss';
 import { Gallery } from './components/Conference/gallery';
 import { Pinned } from './components/Conference/pinned';
-import PeerState, { listenToRoomState } from './utils/state';
+import PeerState, { onRoomStateChange } from './utils/state';
 
 const modes = {
   GALLERY: 'GALLERY',
@@ -30,18 +30,21 @@ class Conference extends React.Component {
     const { client } = this.props;
     client.on('stream-add', this._handleAddStream);
     client.on('stream-remove', this._handleRemoveStream);
-    this.roomStateUnsubscribe = listenToRoomState(
+    this.roomStateUnsubscribe = onRoomStateChange(
       client.rid,
-      roomState => {
-        console.log(roomState.peers);
-        const streamsMap = Object.values(roomState.peers).reduce((a, c) => {
+      peers => {
+        console.log('CHANGED VALUES: ', peers);
+        const streamsMap = peers.reduce((a, c) => {
           return { ...a, ...c.streams };
         }, {});
+
         const newStreams = this.state.streams.map(stream => {
           return { ...stream, ...streamsMap[stream.mid] };
         });
+
         this.setState({ streams: newStreams });
       },
+
       console.error
     );
   };
@@ -50,7 +53,7 @@ class Conference extends React.Component {
     const { client } = this.props;
     client.off('stream-add', this._handleAddStream);
     client.off('stream-remove', this._handleRemoveStream);
-    this.roomStateUnsubscribe();
+    this.roomStateUnsubscribe && this.roomStateUnsubscribe();
   };
 
   cleanUp = async () => {
@@ -116,10 +119,10 @@ class Conference extends React.Component {
 
     if (type === 'audio') {
       this.setState({ audioMuted: !enabled });
-      this.peerState.update({ audioEnabled: enabled });
+      this.peerState && this.peerState.update({ audioEnabled: enabled });
     } else if (type === 'video') {
       this.setState({ videoMuted: !enabled });
-      this.peerState.update({ videoEnabled: enabled });
+      this.peerState && this.peerState.update({ videoEnabled: enabled });
     }
   };
 
@@ -162,9 +165,25 @@ class Conference extends React.Component {
             rid: peerInfo.rid,
           });
 
+          console.info('New peerState created', this.peerState);
+
           this.peerState.update({
             audioEnabled: true,
             videoEnabled: true,
+          });
+
+          this.peerStateUnsubscribe = this.peerState.onRequest(request => {
+            console.log('REQUEST', request);
+            const isMuted = this.state.audioMuted;
+            if (request.mute) {
+              if (isMuted) return;
+              console.log('Muting');
+              this.muteMediaTrack('audio', false);
+            } else {
+              if (!isMuted) return;
+              console.log('Unmuting');
+              this.muteMediaTrack('audio', true);
+            }
           });
         }, 500);
       } else {
@@ -214,6 +233,7 @@ class Conference extends React.Component {
     for (let i = 0, len = tracks.length; i < len; i++) {
       await tracks[i].stop();
     }
+    this.peerStateUnsubscribe();
     this.peerState.delete();
   };
 
@@ -268,6 +288,8 @@ class Conference extends React.Component {
   };
 
   render = () => {
+    if (!this.peerState) return null;
+    const onRequest = this.peerState.setRequest.bind(this.peerState);
     const { client } = this.props;
     const {
       streams,
@@ -298,6 +320,7 @@ class Conference extends React.Component {
             mode: modes.GALLERY,
           });
         }}
+        onRequest={onRequest}
       />
     ) : (
       <Gallery
@@ -316,6 +339,7 @@ class Conference extends React.Component {
             pinned: streamId,
           });
         }}
+        onRequest={onRequest}
       />
     );
   };
