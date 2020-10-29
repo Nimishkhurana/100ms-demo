@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 import {
   Layout,
   Button,
@@ -8,24 +8,24 @@ import {
   Card,
   Spin,
   Tooltip,
-} from "antd";
-const { confirm } = Modal;
-const { Header, Content, Sider } = Layout;
-import { reactLocalStorage } from "reactjs-localstorage";
-import MediaSettings from "./settings";
-import ChatFeed from "./chat/index";
-import Message from "./chat/message";
-import bLogo from "../public/100ms-logo-on-black.png";
-import "../styles/css/app.scss";
+} from "antd"
+const { confirm } = Modal
+const { Header, Content, Sider } = Layout
+import { reactLocalStorage } from "reactjs-localstorage"
+import MediaSettings from "./settings"
+import ChatFeed from "./chat/index"
+import Message from "./chat/message"
+import bLogo from "../public/100ms-logo-on-black.png"
+import "../styles/css/app.scss"
 
-import LoginForm from "./LoginForm";
-import Conference from "./Conference";
-import { Controls } from "./components/Controls";
-import { Client, Stream } from "brytecam-sdk-js";
+import LoginForm from "./LoginForm"
+import Conference from "./Conference"
+import { Controls } from "./components/Controls"
+import { Client, Stream } from "brytecam-sdk-js"
 
 class App extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       login: false,
       loading: false,
@@ -37,7 +37,7 @@ class App extends React.Component {
       vidFit: false,
       loginInfo: {},
       messages: [],
-    };
+    }
 
     this._settings = {
       selectedAudioDevice: "",
@@ -47,50 +47,50 @@ class App extends React.Component {
       codec: "vp8",
       //codec: "h264",
       isDevMode: true,
-    };
+    }
 
-    let settings = reactLocalStorage.getObject("settings");
+    let settings = reactLocalStorage.getObject("settings")
     if (settings.codec !== undefined) {
-      this._settings = settings;
+      this._settings = settings
     }
   }
 
   _cleanUp = async () => {
-    await this.conference.cleanUp();
-    await this.client.leave();
-  };
+    await this.conference.cleanUp()
+    await this.client.leave()
+  }
 
   _notification = (message, description) => {
     notification.info({
       message: message,
       description: description,
       placement: "bottomRight",
-    });
-  };
+    })
+  }
 
   _createClient = () => {
-    let url = "wss://" + window.location.host;
-    const token = process.env.TOKEN;
+    let url = "wss://" + window.location.host
+    const token = process.env.TOKEN
     //for dev by scripts
     if (process.env.NODE_ENV == "development") {
-      const proto = this._settings.isDevMode ? "wss" : "wss";
-      url = proto + "://" + window.location.host;
+      const proto = this._settings.isDevMode ? "wss" : "wss"
+      url = proto + "://" + window.location.host
     }
     try {
-      let client = new Client({ url: url, token: token });
-      client.url = url;
-      return client;
+      let client = new Client({ url: url, token: token })
+      client.url = url
+      return client
     } catch (err) {
-      console.error(err);
-      alert("Invalid token");
+      console.error(err)
+      alert("Invalid token")
     }
-  };
+  }
 
   _handleJoin = async (values) => {
-    this.setState({ loading: true });
-    let settings = this._settings;
-    settings.selectedVideoDevice = values.selectedVideoDevice;
-    settings.selectedAudioDevice = values.selectedAudioDevice;
+    this.setState({ loading: true })
+    let settings = this._settings
+    settings.selectedVideoDevice = values.selectedVideoDevice
+    settings.selectedAudioDevice = values.selectedAudioDevice
     //TODO this should reflect in initialization as well
 
     this._onMediaSettingsChanged(
@@ -100,164 +100,164 @@ class App extends React.Component {
       settings.bandwidth,
       settings.codec,
       settings.isDevMode
-    );
+    )
 
-    let client = this._createClient();
+    let client = this._createClient()
 
     window.onunload = async () => {
-      await this._cleanUp();
-    };
+      await this._cleanUp()
+    }
 
     client.on("peer-join", (id, info) => {
       //this._notification("Peer Join", "peer => " + info.name + ", join!")
-    });
+    })
 
     client.on("peer-leave", (id) => {
       //this._notification("Peer Leave", "peer => " + id + ", leave!")
-    });
+    })
 
     client.on("transport-open", () => {
-      console.log("transport open!");
-      this._handleTransportOpen(values);
-    });
+      console.log("transport open!")
+      this._handleTransportOpen(values)
+    })
 
     client.on("transport-closed", () => {
-      console.log("transport closed!");
-    });
+      console.log("transport closed!")
+    })
 
     client.on("stream-add", (id, info) => {
-      console.log("stream-add %s,%s!", id, info);
+      console.log("stream-add %s,%s!", id, info)
       //this._notification("Stream Add", "id => " + id + ", name => " + info.name)
-    });
+    })
 
     client.on("stream-remove", (stream) => {
-      console.log("stream-remove %s,%", stream.id);
+      console.log("stream-remove %s,%", stream.id)
       //this._notification("Stream Remove", "id => " + stream.id)
-    });
+    })
 
     client.on("broadcast", (mid, info) => {
-      console.log("broadcast %s,%s!", mid, info);
-      this._onMessageReceived(info);
-    });
+      console.log("broadcast %s,%s!", mid, info)
+      this._onMessageReceived(info)
+    })
 
-    this.client = client;
-  };
+    this.client = client
+  }
 
   _handleTransportOpen = async (values) => {
-    console.log(values);
-    reactLocalStorage.remove("loginInfo");
-    reactLocalStorage.setObject("loginInfo", values);
-    await this.client.join(values.roomId, { name: values.displayName });
+    console.log(values)
+    reactLocalStorage.remove("loginInfo")
+    reactLocalStorage.setObject("loginInfo", values)
+    await this.client.join(values.roomId, { name: values.displayName })
     //TODO ugly hack
     window.history.pushState(
       {},
       "100ms",
       "https://" + window.location.host + "/?room=" + values.roomId
-    );
+    )
     this.setState({
       login: true,
       loading: false,
       loginInfo: values,
       localVideoEnabled: !values.audioOnly,
       localAudioEnabled: !values.videoOnly,
-    });
+    })
 
     this._notification(
       "Connected!",
       "Welcome to the brytecam room => " + values.roomId
-    );
-    await this.conference.handleLocalStream(true);
-  };
+    )
+    await this.conference.handleLocalStream(true)
+  }
 
   _handleLeave = async () => {
-    let client = this.client;
-    let this2 = this;
+    let client = this.client
+    let this2 = this
     confirm({
       title: "Leave Now?",
       content: "Do you want to leave the room?",
       async onOk() {
-        console.log("OK");
-        await this2._cleanUp();
-        this2.setState({ login: false });
+        console.log("OK")
+        await this2._cleanUp()
+        this2.setState({ login: false })
       },
       onCancel() {
-        console.log("Cancel");
+        console.log("Cancel")
       },
-    });
-  };
+    })
+  }
 
   _handleAudioTrackEnabled = (enabled) => {
     this.setState({
       localAudioEnabled: enabled,
-    });
-    this.conference.muteMediaTrack("audio", enabled);
-  };
+    })
+    this.conference.muteMediaTrack("audio", enabled)
+  }
 
   _handleVideoTrackEnabled = (enabled) => {
     this.setState({
       localVideoEnabled: enabled,
-    });
-    this.conference.muteMediaTrack("video", enabled);
-  };
+    })
+    this.conference.muteMediaTrack("video", enabled)
+  }
 
   _handleScreenSharing = (enabled) => {
     this.setState({
       screenSharingEnabled: enabled,
-    });
-    this.conference.handleScreenSharing(enabled);
-  };
+    })
+    this.conference.handleScreenSharing(enabled)
+  }
 
   _onRef = (ref) => {
-    this.conference = ref;
-  };
+    this.conference = ref
+  }
 
   _openOrCloseLeftContainer = (collapsed) => {
     this.setState({
       collapsed: collapsed,
-    });
-  };
+    })
+  }
 
   _onVidFitClickHandler = () => {
     this.setState({
       vidFit: !this.state.vidFit,
-    });
-  };
+    })
+  }
 
   _onFullScreenClickHandler = () => {
-    let docElm = document.documentElement;
+    let docElm = document.documentElement
 
     if (this._fullscreenState()) {
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        document.exitFullscreen()
       } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
+        document.mozCancelFullScreen()
       } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
+        document.webkitCancelFullScreen()
       } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
+        document.msExitFullscreen()
       }
 
-      this.setState({ isFullScreen: false });
+      this.setState({ isFullScreen: false })
     } else {
       if (docElm.requestFullscreen) {
-        docElm.requestFullscreen();
+        docElm.requestFullscreen()
       }
       //FireFox
       else if (docElm.mozRequestFullScreen) {
-        docElm.mozRequestFullScreen();
+        docElm.mozRequestFullScreen()
       }
       //Chrome等
       else if (docElm.webkitRequestFullScreen) {
-        docElm.webkitRequestFullScreen();
+        docElm.webkitRequestFullScreen()
       }
       //IE11
       else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
+        elem.msRequestFullscreen()
       }
 
-      this.setState({ isFullScreen: true });
+      this.setState({ isFullScreen: true })
     }
-  };
+  }
 
   _fullscreenState = () => {
     return (
@@ -265,8 +265,8 @@ class App extends React.Component {
       document.webkitIsFullScreen ||
       document.mozFullScreen ||
       false
-    );
-  };
+    )
+  }
 
   _onMediaSettingsChanged = (
     selectedAudioDevice,
@@ -283,32 +283,32 @@ class App extends React.Component {
       bandwidth,
       codec,
       isDevMode,
-    };
-    reactLocalStorage.setObject("settings", this._settings);
-  };
+    }
+    reactLocalStorage.setObject("settings", this._settings)
+  }
 
   _onMessageReceived = (data) => {
-    console.log("Received message:" + data.senderName + ":" + data.msg);
-    let messages = this.state.messages;
-    let uid = 1;
+    console.log("Received message:" + data.senderName + ":" + data.msg)
+    let messages = this.state.messages
+    let uid = 1
     messages.push(
       new Message({ id: uid, message: data.msg, senderName: data.senderName })
-    );
-    this.setState({ messages });
-  };
+    )
+    this.setState({ messages })
+  }
 
   _onSendMessage = (data) => {
-    console.log("Send message:" + data);
+    console.log("Send message:" + data)
     var info = {
       senderName: this.state.loginInfo.displayName,
       msg: data,
-    };
-    this.client.broadcast(info);
-    let messages = this.state.messages;
-    let uid = 0;
-    messages.push(new Message({ id: uid, message: data, senderName: "me" }));
-    this.setState({ messages });
-  };
+    }
+    this.client.broadcast(info)
+    let messages = this.state.messages
+    let uid = 0
+    messages.push(new Message({ id: uid, message: data, senderName: "me" }))
+    this.setState({ messages })
+  }
 
   render() {
     const {
@@ -319,7 +319,7 @@ class App extends React.Component {
       screenSharingEnabled,
       collapsed,
       vidFit,
-    } = this.state;
+    } = this.state
     return (
       <Layout className="app-layout">
         <Header
@@ -375,7 +375,7 @@ class App extends React.Component {
                       vidFit={vidFit}
                       loginInfo={this.state.loginInfo}
                       ref={(ref) => {
-                        this.conference = ref;
+                        this.conference = ref
                       }}
                     />
                     <Controls
@@ -414,8 +414,8 @@ class App extends React.Component {
           )}
         </Content>
       </Layout>
-    );
+    )
   }
 }
 
-export default App;
+export default App

@@ -1,43 +1,43 @@
-import React from "react";
-import PropTypes from "prop-types";
-import ReactDOM from "react-dom";
-import { Modal, Button, Tooltip, Input, Icon } from "antd";
-import { ControlButton } from "./components/Controls/ControlButton";
-import ShareIcon from "mdi-react/ShareIcon";
+import React from "react"
+import PropTypes from "prop-types"
+import ReactDOM from "react-dom"
+import { Modal, Button, Tooltip, Input, Icon } from "antd"
+import { ControlButton } from "./components/Controls/ControlButton"
+import ShareIcon from "mdi-react/ShareIcon"
 
 export default class ToolShare extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       visible: false,
       application: "SFU",
-    };
+    }
   }
   showModal = () => {
     this.setState({
       visible: true,
-    });
+    })
 
-    let loginInfo = this.props.loginInfo;
-    let host = window.location.host;
+    let loginInfo = this.props.loginInfo
+    let host = window.location.host
     let url =
-      window.location.protocol + "//" + host + "/?room=" + loginInfo.roomId;
-    this.setState({ url });
-  };
+      window.location.protocol + "//" + host + "/?room=" + loginInfo.roomId
+    this.setState({ url })
+  }
   handleOk = (e) => {
     this.setState({
       visible: false,
-    });
-  };
+    })
+  }
   handleCancel = (e) => {
     this.setState({
       visible: false,
-    });
-  };
+    })
+  }
 
   onFocus = (e) => {
-    ReactDOM.findDOMNode(e.target).select();
-  };
+    ReactDOM.findDOMNode(e.target).select()
+  }
 
   render() {
     return (
@@ -69,10 +69,10 @@ export default class ToolShare extends React.Component {
           </div>
         </Modal>
       </div>
-    );
+    )
   }
 }
 
 ToolShare.propTypes = {
   roomInfo: PropTypes.any,
-};
+}

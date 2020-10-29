@@ -1,5 +1,5 @@
-import React from "react";
-import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview";
+import React from "react"
+import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview"
 
 const Pinned = ({
   id,
@@ -13,11 +13,11 @@ const Pinned = ({
   pinned,
   loginInfo,
 }) => {
-  console.log(pinned, streams);
-  const isLocalScreenPinned = localScreen && pinned === id + "-screen";
-  const isLocalStreamPinned = localStream && pinned === id + "-video";
-  const pinnedStream = streams.filter((s) => s.sid === pinned)[0];
-  const newStreams = streams.filter((s) => s.sid !== pinned);
+  console.log(pinned, streams)
+  const isLocalScreenPinned = localScreen && pinned === id + "-screen"
+  const isLocalStreamPinned = localStream && pinned === id + "-video"
+  const pinnedStream = streams.filter((s) => s.sid === pinned)[0]
+  const newStreams = streams.filter((s) => s.sid !== pinned)
 
   return (
     <div
@@ -36,7 +36,7 @@ const Pinned = ({
             pinned
             videoType="localVideo"
             onUnpin={() => {
-              onUnpin();
+              onUnpin()
             }}
           />
         )}
@@ -51,7 +51,7 @@ const Pinned = ({
             videoMuted={videoMuted}
             videoType="localScreen"
             onUnpin={() => {
-              onUnpin();
+              onUnpin()
             }}
           />
         )}
@@ -89,7 +89,7 @@ const Pinned = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export { Pinned };
+export { Pinned }

@@ -1,28 +1,28 @@
-import React from "react";
-import PinIcon from "mdi-react/PinIcon";
-import PinOffIcon from "mdi-react/PinOffIcon";
+import React from "react"
+import PinIcon from "mdi-react/PinIcon"
+import PinOffIcon from "mdi-react/PinOffIcon"
 
 class LocalVideoView extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       minimize: false,
-    };
+    }
   }
 
   componentDidMount = () => {
-    const { stream } = this.props;
-    this.video.srcObject = stream;
-  };
+    const { stream } = this.props
+    this.video.srcObject = stream
+  }
 
   componentWillUnmount = () => {
-    this.video.srcObject = null;
-  };
+    this.video.srcObject = null
+  }
 
   onMinimizeClick = () => {
-    let minimize = !this.state.minimize;
-    this.setState({ minimize });
-  };
+    let minimize = !this.state.minimize
+    this.setState({ minimize })
+  }
 
   render = () => {
     const {
@@ -34,11 +34,11 @@ class LocalVideoView extends React.Component {
       onPin,
       onUnpin,
       pinned = false,
-    } = this.props;
+    } = this.props
 
-    let minIconStyle = "local-video-icon-layout";
+    let minIconStyle = "local-video-icon-layout"
     if (videoType == "localVideo") {
-      minIconStyle = "local-video-min-layout";
+      minIconStyle = "local-video-min-layout"
     }
 
     return (
@@ -49,7 +49,7 @@ class LocalVideoView extends React.Component {
       >
         <video
           ref={(ref) => {
-            this.video = ref;
+            this.video = ref
           }}
           id={id}
           autoPlay
@@ -85,8 +85,8 @@ class LocalVideoView extends React.Component {
           )}
         </div>
       </div>
-    );
-  };
+    )
+  }
 }
 
-export default LocalVideoView;
+export default LocalVideoView
