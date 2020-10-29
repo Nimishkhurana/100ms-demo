@@ -1,14 +1,14 @@
-import React from "react"
-import { ControlButton } from "./ControlButton"
-import VideoIcon from "mdi-react/VideoIcon"
-import VideocamOffIcon from "mdi-react/VideocamOffIcon"
-import MicrophoneIcon from "mdi-react/MicrophoneIcon"
-import MicrophoneOffIcon from "mdi-react/MicrophoneOffIcon"
-import PhoneHangupIcon from "mdi-react/PhoneHangupIcon"
-import TelevisionIcon from "mdi-react/TelevisionIcon"
-import TelevisionOffIcon from "mdi-react/TelevisionOffIcon"
-import VideoCheckIcon from "mdi-react/VideoCheckIcon"
-import ToolShare from "../../ToolShare"
+import React from 'react';
+import { ControlButton } from './ControlButton';
+import VideoIcon from 'mdi-react/VideoIcon';
+import VideocamOffIcon from 'mdi-react/VideocamOffIcon';
+import MicrophoneIcon from 'mdi-react/MicrophoneIcon';
+import MicrophoneOffIcon from 'mdi-react/MicrophoneOffIcon';
+import PhoneHangupIcon from 'mdi-react/PhoneHangupIcon';
+import TelevisionIcon from 'mdi-react/TelevisionIcon';
+import TelevisionOffIcon from 'mdi-react/TelevisionOffIcon';
+import VideoCheckIcon from 'mdi-react/VideoCheckIcon';
+import ToolShare from '../../ToolShare';
 
 const Controls = ({
   isMuted,
@@ -25,7 +25,7 @@ const Controls = ({
   return (
     <div
       className="h-16 absolute w-full justify-center bottom-0 flex items-center py-1"
-      style={{ backgroundColor: "#1a1619" }}
+      style={{ backgroundColor: '#1a1619' }}
     >
       <div className="mr-1">
         <ControlButton
@@ -106,7 +106,7 @@ const Controls = ({
         <ToolShare loginInfo={loginInfo} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export { Controls }
+export { Controls };

@@ -1,4 +1,4 @@
-import React from "react"
+import React from 'react';
 
 const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
   return (
@@ -8,7 +8,7 @@ const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
     >
       <div
         className={`w-10 h-10 rounded-lg flex items-center justify-center hover:bg-red-500 hover:text-red-100 transition duration-100 ease-in ${
-          isActive ? "bg-red-500" : "bg-indigo-900"
+          isActive ? 'bg-red-500' : 'bg-indigo-900'
         }`}
       >
         {isActive ? activeIcon : icon}
@@ -17,7 +17,7 @@ const ControlButton = ({ icon, label, activeIcon, isActive, onClick }) => {
         <span className="text-xs text-indigo-100">{label}</span>
       </div>
     </button>
-  )
-}
+  );
+};
 
-export { ControlButton }
+export { ControlButton };

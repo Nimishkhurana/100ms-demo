@@ -1,5 +1,5 @@
-import React from "react"
-import { LocalVideoView, MainVideoView, SmallVideoView } from "../../videoview"
+import React from 'react';
+import { LocalVideoView, MainVideoView, SmallVideoView } from '../../videoview';
 
 const Pinned = ({
   id,
@@ -13,21 +13,21 @@ const Pinned = ({
   pinned,
   loginInfo,
 }) => {
-  console.log(pinned, streams)
-  const isLocalScreenPinned = localScreen && pinned === id + "-screen"
-  const isLocalStreamPinned = localStream && pinned === id + "-video"
-  const pinnedStream = streams.filter((s) => s.sid === pinned)[0]
-  const newStreams = streams.filter((s) => s.sid !== pinned)
+  console.log(pinned, streams);
+  const isLocalScreenPinned = localScreen && pinned === id + '-screen';
+  const isLocalStreamPinned = localStream && pinned === id + '-video';
+  const pinnedStream = streams.filter(s => s.sid === pinned)[0];
+  const newStreams = streams.filter(s => s.sid !== pinned);
 
   return (
     <div
       className={`relative top-0 bottom-0 w-full flex items-center`}
-      style={{ height: "calc(100vh - 128px)", backgroundColor: "#1a1619" }}
+      style={{ height: 'calc(100vh - 128px)', backgroundColor: '#1a1619' }}
     >
       <div className="w-4/5 h-full">
         {isLocalStreamPinned && (
           <LocalVideoView
-            id={id + "-video"}
+            id={id + '-video'}
             label={`${loginInfo.displayName} (You)`}
             client={client}
             stream={localStream}
@@ -36,13 +36,13 @@ const Pinned = ({
             pinned
             videoType="localVideo"
             onUnpin={() => {
-              onUnpin()
+              onUnpin();
             }}
           />
         )}
         {isLocalScreenPinned && (
           <LocalVideoView
-            id={id + "-screen"}
+            id={id + '-screen'}
             label="Your Screen"
             client={client}
             stream={localScreen}
@@ -51,7 +51,7 @@ const Pinned = ({
             videoMuted={videoMuted}
             videoType="localScreen"
             onUnpin={() => {
-              onUnpin()
+              onUnpin();
             }}
           />
         )}
@@ -73,7 +73,7 @@ const Pinned = ({
         ))}
         {localScreen && !isLocalScreenPinned && (
           <SmallVideoView
-            id={id + "-screen"}
+            id={id + '-screen'}
             stream={localScreen}
             label="Your Screen"
             isMuted={true}
@@ -81,7 +81,7 @@ const Pinned = ({
         )}
         {localStream && !isLocalStreamPinned && (
           <SmallVideoView
-            id={id + "-video"}
+            id={id + '-video'}
             stream={localStream}
             label={`${loginInfo.displayName} (You)`}
             isMuted={true}
@@ -89,7 +89,7 @@ const Pinned = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export { Pinned }
+export { Pinned };

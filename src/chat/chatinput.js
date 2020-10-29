@@ -1,46 +1,46 @@
-import React, { Component } from "react"
-import PropTypes from "prop-types"
-import { Input, Button } from "antd"
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Input, Button } from 'antd';
 
 export default class ChatInput extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
-      inputMessage: "",
-    }
+      inputMessage: '',
+    };
   }
 
-  onInputChange = (event) => {
+  onInputChange = event => {
     this.setState({
       inputMessage: event.target.value,
-    })
-  }
+    });
+  };
 
-  onBtnSendHandler = (event) => {
-    this.sendMessage()
-  }
+  onBtnSendHandler = event => {
+    this.sendMessage();
+  };
 
-  onInputKeyUp = (event) => {
+  onInputKeyUp = event => {
     if (event.keyCode == 13) {
-      this.sendMessage()
+      this.sendMessage();
     }
-  }
+  };
 
   sendMessage = () => {
-    let msg = this.state.inputMessage
+    let msg = this.state.inputMessage;
 
     if (msg.length === 0) {
-      return
+      return;
     }
-    if (msg.replace(/(^\s*)|(\s*$)/g, "").length === 0) {
-      return
+    if (msg.replace(/(^\s*)|(\s*$)/g, '').length === 0) {
+      return;
     }
-    this.props.onSendMessage(msg)
+    this.props.onSendMessage(msg);
     this.setState({
-      inputMessage: "",
-    })
-  }
+      inputMessage: '',
+    });
+  };
 
   render() {
     return (
@@ -52,15 +52,15 @@ export default class ChatInput extends Component {
           value={this.state.inputMessage}
         />
         <Button
-          style={{ marginLeft: "4px" }}
+          style={{ marginLeft: '4px' }}
           icon="message"
           onClick={this.onBtnSendHandler}
         />
       </div>
-    )
+    );
   }
 }
 
 ChatInput.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
-}
+};

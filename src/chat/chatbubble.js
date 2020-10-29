@@ -1,12 +1,12 @@
-import React, { Component } from "react"
-import { Icon } from "antd"
-import UserIcon from "mdi-react/UserIcon"
+import React, { Component } from 'react';
+import { Icon } from 'antd';
+import UserIcon from 'mdi-react/UserIcon';
 
 export default class ChatBubble extends Component {
   constructor(props) {
-    super()
+    super();
 
-    this.state = { message: props.message }
+    this.state = { message: props.message };
   }
 
   componentDidMount() {}
@@ -25,12 +25,12 @@ export default class ChatBubble extends Component {
             </div>
           </div>
         </div>
-      )
+      );
     } else if (this.props.message.id == 0) {
       return (
         <div className="bubble-right">
           <div className="bubble-msg">
-            <p style={{ textAlign: "right" }} className="sender-name">
+            <p style={{ textAlign: 'right' }} className="sender-name">
               {this.props.message.senderName}
             </p>
             <div className="bubble-msgword">
@@ -42,7 +42,7 @@ export default class ChatBubble extends Component {
             <Icon component={UserIcon} />
           </div>
         </div>
-      )
+      );
     } else if (this.props.message.id == 2) {
       return (
         <div className="bubble-middle">
@@ -52,7 +52,7 @@ export default class ChatBubble extends Component {
             </div>
           </div>
         </div>
-      )
+      );
     }
   }
 }
