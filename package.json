@@ -39,6 +39,7 @@
     "bowser": "^2.11.0",
     "brytecam-sdk-js": "^0.3.0",
     "copy-webpack-plugin": "^5.0.5",
+    "dotenv": "^8.2.0",
     "firebase": "^8.0.0",
     "formik": "^2.1.7",
     "mdi-react": "^6.4.0",

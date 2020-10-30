@@ -3,12 +3,11 @@ const fs = require('fs');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { debug } = require('console');
+require('dotenv').config();
 
 module.exports = env => {
   const isEnvProduction = !!env && env.production;
   console.log('Production: ', isEnvProduction);
-
   return {
     devtool: 'cheap-module-eval-source-map',
     entry: './src/index.jsx',
@@ -71,6 +70,30 @@ module.exports = env => {
       ),
       new webpack.DefinePlugin({
         'process.env.TOKEN': JSON.stringify(process.env.TOKEN),
+        'process.env.FIREBASE_API_KEY': JSON.stringify(
+          process.env.FIREBASE_API_KEY
+        ),
+        'process.env.FIREBASE_AUTH_DOMAIN': JSON.stringify(
+          process.env.FIREBASE_AUTH_DOMAIN
+        ),
+        'process.env.FIREBASE_DATABASE_URL': JSON.stringify(
+          process.env.FIREBASE_DATABASE_URL
+        ),
+        'process.env.FIREBASE_PROJECT_ID': JSON.stringify(
+          process.env.FIREBASE_PROJECT_ID
+        ),
+        'process.env.FIREBASE_STORAGE_BUCKET': JSON.stringify(
+          process.env.FIREBASE_STORAGE_BUCKET
+        ),
+        'process.env.FIREBASE_MESSAGING_ID': JSON.stringify(
+          process.env.FIREBASE_MESSAGING_ID
+        ),
+        'process.env.FIREBASE_APP_ID': JSON.stringify(
+          process.env.FIREBASE_APP_ID
+        ),
+        'process.env.FIREBASE_MEASUREMENT_ID': JSON.stringify(
+          process.env.FIREBASE_MEASUREMENT_ID
+        ),
       }),
     ],
     devServer: {
