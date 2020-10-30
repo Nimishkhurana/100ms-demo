@@ -60,13 +60,13 @@ class Conference extends React.Component {
     let { localStream, localScreen, streams } = this.state;
     await this.setState({ localStream: null, localScreen: null, streams: [] });
 
-    this.peerState.delete();
-
     streams.map(async item => {
       await item.stream.unsubscribe();
     });
 
     await this._unpublish(localStream);
+    // this.peerStateUnsubscribe();
+    this.peerState.delete();
   };
 
   // @TODO: Move this to utils or core lib
@@ -172,7 +172,7 @@ class Conference extends React.Component {
             videoEnabled: true,
           });
 
-          this.peerStateUnsubscribe = this.peerState.onRequest(request => {
+          this.peerState.onRequest(request => {
             console.log('REQUEST', request);
             const isMuted = this.state.audioMuted;
             if (request.mute) {
@@ -233,8 +233,6 @@ class Conference extends React.Component {
     for (let i = 0, len = tracks.length; i < len; i++) {
       await tracks[i].stop();
     }
-    this.peerStateUnsubscribe();
-    this.peerState.delete();
   };
 
   _handleAddStream = async (mid, info) => {
@@ -258,6 +256,10 @@ class Conference extends React.Component {
         mode: modes.GALLERY,
       });
     }
+  };
+
+  _onRequest = (uid, request) => {
+    this.peerState.setRequest(uid, request);
   };
 
   _onChangeVideoPosition = data => {
@@ -288,8 +290,6 @@ class Conference extends React.Component {
   };
 
   render = () => {
-    if (!this.peerState) return null;
-    const onRequest = this.peerState.setRequest.bind(this.peerState);
     const { client } = this.props;
     const {
       streams,
@@ -322,7 +322,7 @@ class Conference extends React.Component {
                 mode: modes.GALLERY,
               });
             }}
-            onRequest={onRequest}
+            onRequest={this._onRequest}
           />
         ) : (
           <Gallery
@@ -341,13 +341,13 @@ class Conference extends React.Component {
                 pinned: streamId,
               });
             }}
-            onRequest={onRequest}
+            onRequest={this._onRequest}
           />
         )}
         <Controls
           isMuted={this.state.audioMuted}
           isCameraOn={!this.state.videoMuted}
-          isScreenSharing={this.props.screenSharingEnabled}
+          isScreenSharing={this.props.isScreenSharing}
           onScreenToggle={this.props.onScreenToggle}
           onLeave={this.props.onLeave}
           onMicToggle={() => {

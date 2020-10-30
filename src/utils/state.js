@@ -31,7 +31,7 @@ class PeerState {
 
   delete() {
     console.log('DELETE FROM FIREBASE', this.uid);
-
+    this.unsubscribe();
     return roomsCollection
       .doc(this.rid)
       .collection('peers')
@@ -54,7 +54,7 @@ class PeerState {
   onRequest(cb, errorCb) {
     console.log('LISTENING TO REQUESTS', this.uid);
 
-    roomsCollection
+    this.unsubscribe = roomsCollection
       .doc(this.rid)
       .collection('peers')
       .doc(this.uid)
