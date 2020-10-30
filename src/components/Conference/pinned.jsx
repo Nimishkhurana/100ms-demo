@@ -12,6 +12,7 @@ const Pinned = ({
   onUnpin,
   pinned,
   loginInfo,
+  onRequest,
 }) => {
   console.log(pinned, streams);
   const isLocalScreenPinned = localScreen && pinned === id + '-screen';
@@ -62,6 +63,11 @@ const Pinned = ({
             stream={pinnedStream.stream}
             pinned
             onUnpin={onUnpin}
+            audioEnabled={pinnedStream.audioEnabled}
+            videoEnabled={pinnedStream.videoEnabled}
+            screenshare={pinnedStream.screenshare}
+            uid={pinnedStream.uid}
+            onRequest={onRequest}
           />
         )}
       </div>

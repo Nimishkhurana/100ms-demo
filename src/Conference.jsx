@@ -211,6 +211,11 @@ class Conference extends React.Component {
         codec: settings.codec.toUpperCase(),
         resolution: settings.resolution,
         bandwidth: settings.bandwidth,
+        video: {
+          frameRate: {
+            max: 1,
+          },
+        },
       });
       await client.publish(localScreen);
       let track = localScreen.getVideoTracks()[0];
