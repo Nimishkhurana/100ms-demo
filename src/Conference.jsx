@@ -212,6 +212,7 @@ class Conference extends React.Component {
         resolution: settings.resolution,
         bandwidth: settings.bandwidth,
         video: {
+          //TODO needs to be implemented in SDK
           frameRate: {
             max: 1,
           },
@@ -228,6 +229,11 @@ class Conference extends React.Component {
       if (localScreen) {
         this._unpublish(localScreen);
         localScreen = null;
+        if(this.state.mode===modes.PINNED && this.state.pinned === client.uid+'-screen'){
+          this.setState({
+            mode: modes.GALLERY,
+          });
+        }
       }
     }
     this.setState({ localScreen });
