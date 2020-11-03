@@ -192,7 +192,8 @@ export default class MediaSettings extends React.Component {
         this.state.resolution,
         this.state.bandwidth,
         this.state.codec,
-        this.state.isDevMode
+        this.state.isDevMode,
+        true
       );
     }
   };
