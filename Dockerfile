@@ -10,8 +10,14 @@ COPY src/ src/
 COPY styles/ styles/
 COPY webpack.config.js .babelrc ./
 
-ARG TOKEN
-ENV TOKEN=${TOKEN}
+ARG CONF_TOKEN
+ENV CONF_TOKEN=${CONF_TOKEN}
+
+ARG STAGING_TOKEN
+ENV STAGING_TOKEN=${STAGING_TOKEN}
+
+ARG QA_IN_TOKEN
+ENV QA_IN_TOKEN=${QA_IN_TOKEN}
 
 RUN npm run build
 
