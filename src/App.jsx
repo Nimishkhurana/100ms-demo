@@ -100,7 +100,7 @@ class App extends React.Component {
       settings.resolution,
       settings.bandwidth,
       settings.codec,
-      settings.isDevMode
+      settings.isDevMode      
     );
 
     let client = this._createClient(values.env?values.env:"conf");
@@ -278,7 +278,8 @@ class App extends React.Component {
     resolution,
     bandwidth,
     codec,
-    isDevMode
+    isDevMode,
+    reloadPage = false,
   ) => {
     this._settings = {
       selectedAudioDevice,
@@ -289,6 +290,8 @@ class App extends React.Component {
       isDevMode,
     };
     reactLocalStorage.setObject('settings', this._settings);
+    //TODO hack to make sure settings change happens. Should be replaced by applyMediaConstraints
+    if(reloadPage) window.location.reload();
   };
 
   _onMessageReceived = data => {
