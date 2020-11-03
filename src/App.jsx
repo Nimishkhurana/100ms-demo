@@ -84,8 +84,7 @@ class App extends React.Component {
     let url = `wss://${env}.brytecam.com`;
     let token = await getToken(env);
     if (!supportedEnvs.inludes(env)) {
-      url = `wss://conf.brytecam.com`;
-      token = 'com.brytecam.conf';
+      token = `com.brytecam.${env}`;
     }
 
     try {
