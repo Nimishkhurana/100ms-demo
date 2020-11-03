@@ -99,7 +99,7 @@ class LoginForm extends React.Component {
     this.getRequest() && this.getRequest().hasOwnProperty('room')
       ? this.getRequest().room
       : '';
-  env =     
+  env =
     this.getRequest() && this.getRequest().hasOwnProperty('env')
       ? this.getRequest().env
       : '';
@@ -466,9 +466,7 @@ class LoginForm extends React.Component {
       roomId: this.state.formValues
         ? this.state.formValues.roomId
         : this.roomId,
-      env: this.state.formValues 
-        ? this.state.formValues.env 
-        : this.env,
+      env: this.state.formValues ? this.state.formValues.env : this.env,
       audioOnly: values.audioOnly,
       videoOnly: values.videoOnly,
       permissionGranted: this.state.permissionGranted,
@@ -605,10 +603,10 @@ class LoginForm extends React.Component {
                       : '',
                     displayName: this.displayName,
                     env: this.env
-                    ? this.env
-                    : this.state.formValues
-                    ? this.state.formValues.env
-                    : '',
+                      ? this.env
+                      : this.state.formValues
+                      ? this.state.formValues.env
+                      : '',
                   }}
                   validate={values => {
                     const errors = {};

@@ -22,6 +22,16 @@ import LoginForm from './LoginForm';
 import Conference from './Conference';
 import { Client } from 'brytecam-sdk-js';
 
+// This is to mimic a token service
+async function getToken(env) {
+  const tokens = {
+    conf: CONF_TOKEN,
+    staging: STAGING_TOKEN,
+    'qa-in': QA_IN_TOKEN,
+  };
+  return tokens[env];
+}
+
 class App extends React.Component {
   constructor() {
     super();
@@ -68,15 +78,16 @@ class App extends React.Component {
     });
   };
 
-  _createClient = (env = 'conf') => {
+  _createClient = async (env = 'conf') => {
+    const supportedEnvs = ['conf', 'staging', 'qa-in'];
+
     let url = `wss://${env}.brytecam.com`;
-    //TODO replace for each location
-    const token = process.env.TOKEN;
-    //for dev by scripts
-    // if (process.env.NODE_ENV == 'development') {
-    //   const proto = this._settings.isDevMode ? 'wss' : 'wss';
-    //   url = proto + '://' + window.location.host;
-    // }
+    let token = await getToken(env);
+    if (!supportedEnvs.inludes(env)) {
+      url = `wss://conf.brytecam.com`;
+      token = 'com.brytecam.conf';
+    }
+
     try {
       let client = new Client({ url: url, token: token });
       client.url = url;
@@ -100,10 +111,10 @@ class App extends React.Component {
       settings.resolution,
       settings.bandwidth,
       settings.codec,
-      settings.isDevMode      
+      settings.isDevMode
     );
 
-    let client = this._createClient(values.env?values.env:"conf");
+    let client = await this._createClient(values.env ? values.env : 'conf');
 
     window.onunload = async () => {
       await this._cleanUp();
@@ -153,7 +164,12 @@ class App extends React.Component {
     window.history.pushState(
       {},
       '100ms',
-      'https://' + window.location.host + '/?room=' + values.roomId + '&env=' + values.env
+      'https://' +
+        window.location.host +
+        '/?room=' +
+        values.roomId +
+        '&env=' +
+        values.env
     );
     this.setState({
       login: true,
@@ -279,7 +295,7 @@ class App extends React.Component {
     bandwidth,
     codec,
     isDevMode,
-    reloadPage = false,
+    reloadPage = false
   ) => {
     this._settings = {
       selectedAudioDevice,
@@ -291,7 +307,7 @@ class App extends React.Component {
     };
     reactLocalStorage.setObject('settings', this._settings);
     //TODO hack to make sure settings change happens. Should be replaced by applyMediaConstraints
-    if(reloadPage) window.location.reload();
+    if (reloadPage) window.location.reload();
   };
 
   _onMessageReceived = data => {

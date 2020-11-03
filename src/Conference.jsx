@@ -136,8 +136,8 @@ class Conference extends React.Component {
           this.muteMediaTrack('audio', true);
         }
       });
-    }, 500);    
-  }
+    }, 500);
+  };
 
   muteMediaTrack = (type, enabled) => {
     let { localStream } = this.state;
@@ -190,10 +190,9 @@ class Conference extends React.Component {
         });
         await client.publish(localStream);
 
-        if(initializePeerState){
-         this._setupPeerState(peerInfo, localStream);
+        if (initializePeerState) {
+          this._setupPeerState(peerInfo, localStream);
         }
-
       } else {
         if (localStream) {
           this._unpublish(localStream);
@@ -237,7 +236,10 @@ class Conference extends React.Component {
       if (localScreen) {
         this._unpublish(localScreen);
         localScreen = null;
-        if(this.state.mode===modes.PINNED && this.state.pinned === client.uid+'-screen'){
+        if (
+          this.state.mode === modes.PINNED &&
+          this.state.pinned === client.uid + '-screen'
+        ) {
           this.setState({
             mode: modes.GALLERY,
           });
