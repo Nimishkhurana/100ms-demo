@@ -24,12 +24,13 @@ import { Client } from 'brytecam-sdk-js';
 
 // This is to mimic a token service
 async function getToken(env) {
-  const tokens = {
-    conf: CONF_TOKEN,
-    staging: STAGING_TOKEN,
-    'qa-in': QA_IN_TOKEN,
-  };
-  return tokens[env];
+  const endpoint =
+    'https://ms-internal-apps-token-service-klly5pwlrz1c.runkit.sh/';
+  const { token } = await fetch(endpoint, {
+    method: 'POST',
+    body: JSON.stringify({ room_id: 'demo', peer_id: 'demo', env }),
+  }).then(response => response.json());
+  return token;
 }
 
 class App extends React.Component {
@@ -79,20 +80,17 @@ class App extends React.Component {
   };
 
   _createClient = async (env = 'conf') => {
-    const supportedEnvs = ['conf', 'staging', 'qa-in'];
-
     let url = `wss://${env}.brytecam.com`;
     let token = await getToken(env);
-    if (!supportedEnvs.includes(env)) {
-      token = `com.brytecam.${env}`;
-    }
+
+    console.log(`%cTOKEN IS: ${token}`, 'color: orange');
 
     try {
       let client = new Client({ url: url, token: token });
       client.url = url;
       return client;
     } catch (err) {
-      console.error(err);
+      console.error('ERROR: ', err);
       alert('Invalid token');
     }
   };
