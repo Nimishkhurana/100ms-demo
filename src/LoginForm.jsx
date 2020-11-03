@@ -99,6 +99,10 @@ class LoginForm extends React.Component {
     this.getRequest() && this.getRequest().hasOwnProperty('room')
       ? this.getRequest().room
       : '';
+  env =     
+    this.getRequest() && this.getRequest().hasOwnProperty('env')
+      ? this.getRequest().env
+      : '';
   displayName = this.localStorage
     ? this.localStorage.displayName
       ? this.localStorage.displayName
@@ -157,7 +161,7 @@ class LoginForm extends React.Component {
     this.state.permissionText =
       'We will need your permission to use your webcam and microphone.';
 
-    if (this.displayName !== '' && this.roomId !== '') {
+    if (this.displayName !== '' && this.roomId !== '' && this.env !== '') {
       if (this.state.permissionGranted) {
         if (
           this.state.settings.selectedAudioDevice === '' &&
@@ -177,6 +181,7 @@ class LoginForm extends React.Component {
           handleLogin({
             displayName: this.displayName,
             roomId: this.roomId,
+            env: this.env,
             audioOnly: this.state.audioOnly,
             videoOnly: this.state.videoOnly,
             permissionGranted: this.state.permissionGranted,
@@ -184,7 +189,7 @@ class LoginForm extends React.Component {
             selectedVideoDevice: this.state.settings.selectedVideoDevice,
           });
         }
-
+        //TODO is this dead code
         this.updateDeviceList(() => {
           formStage = 'PREVIEW';
           this.setState({
@@ -421,6 +426,7 @@ class LoginForm extends React.Component {
             ? values.displayName
             : this.displayName,
           roomId: values.roomId ? values.roomId : this.roomId,
+          env: values.env ? values.env : this.env,
           //TODO audioOnly should be moved into settings
           //TODO this is repeated from componentdidmount
           audioOnly: this.state.audioOnly,
@@ -460,6 +466,9 @@ class LoginForm extends React.Component {
       roomId: this.state.formValues
         ? this.state.formValues.roomId
         : this.roomId,
+      env: this.state.formValues 
+        ? this.state.formValues.env 
+        : this.env,
       audioOnly: values.audioOnly,
       videoOnly: values.videoOnly,
       permissionGranted: this.state.permissionGranted,
@@ -595,6 +604,11 @@ class LoginForm extends React.Component {
                       ? this.state.formValues.roomId
                       : '',
                     displayName: this.displayName,
+                    env: this.env
+                    ? this.env
+                    : this.state.formValues
+                    ? this.state.formValues.env
+                    : '',
                   }}
                   validate={values => {
                     const errors = {};
@@ -603,6 +617,9 @@ class LoginForm extends React.Component {
                     }
                     if (!values.roomId) {
                       errors.roomId = 'Required';
+                    }
+                    if (!values.env) {
+                      errors.env = 'Required';
                     }
                     return errors;
                   }}
@@ -664,10 +681,20 @@ class LoginForm extends React.Component {
                                 <Field
                                   label="Name"
                                   name="displayName"
-                                  className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5 ${
+                                  className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5 ${
                                     initialValues.roomId ? 'rounded-t-md' : ''
                                   }`}
                                   placeholder="Name"
+                                />
+                              )}
+                            </div>
+                            <div className="-mt-px">
+                              {initialValues && (
+                                <Field
+                                  label="Environment"
+                                  name="env"
+                                  className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5`}
+                                  placeholder="Environment (conf/staging/...)"
                                 />
                               )}
                             </div>
