@@ -106,6 +106,39 @@ class Conference extends React.Component {
     }
   };
 
+  _setupPeerState = (peerInfo, localStream) => {
+    // Ugly hack but we need to live with it for now
+    // @TODO: Need to make this work without settimeout
+    window.setTimeout(() => {
+      this.peerState = new PeerState({
+        mid: localStream.mid,
+        uid: peerInfo.uid,
+        rid: peerInfo.rid,
+      });
+
+      console.info('New peerState created', this.peerState);
+
+      this.peerState.update({
+        audioEnabled: true,
+        videoEnabled: true,
+      });
+
+      this.peerState.onRequest(request => {
+        console.log('REQUEST', request);
+        const isMuted = this.state.audioMuted;
+        if (request.mute) {
+          if (isMuted) return;
+          console.log('Muting');
+          this.muteMediaTrack('audio', false);
+        } else {
+          if (!isMuted) return;
+          console.log('Unmuting');
+          this.muteMediaTrack('audio', true);
+        }
+      });
+    }, 500);    
+  }
+
   muteMediaTrack = (type, enabled) => {
     let { localStream } = this.state;
     if (!localStream) {
@@ -126,7 +159,7 @@ class Conference extends React.Component {
     }
   };
 
-  handleLocalStream = async (enabled, peerInfo) => {
+  handleLocalStream = async (enabled, peerInfo, initializePeerState = true) => {
     let { localStream } = this.state;
     const { client, settings } = this.props;
     console.log('Settings===========');
@@ -156,36 +189,11 @@ class Conference extends React.Component {
           video: videoOptions,
         });
         await client.publish(localStream);
-        // Ugly hack but we need to live with it for now
-        // @TODO: Need to make this work without settimeout
-        window.setTimeout(() => {
-          this.peerState = new PeerState({
-            mid: localStream.mid,
-            uid: peerInfo.uid,
-            rid: peerInfo.rid,
-          });
 
-          console.info('New peerState created', this.peerState);
+        if(initializePeerState){
+         this._setupPeerState(peerInfo, localStream);
+        }
 
-          this.peerState.update({
-            audioEnabled: true,
-            videoEnabled: true,
-          });
-
-          this.peerState.onRequest(request => {
-            console.log('REQUEST', request);
-            const isMuted = this.state.audioMuted;
-            if (request.mute) {
-              if (isMuted) return;
-              console.log('Muting');
-              this.muteMediaTrack('audio', false);
-            } else {
-              if (!isMuted) return;
-              console.log('Unmuting');
-              this.muteMediaTrack('audio', true);
-            }
-          });
-        }, 500);
       } else {
         if (localStream) {
           this._unpublish(localStream);

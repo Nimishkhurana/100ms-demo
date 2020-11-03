@@ -68,14 +68,15 @@ class App extends React.Component {
     });
   };
 
-  _createClient = () => {
-    let url = 'wss://' + window.location.host;
+  _createClient = (env = 'conf') => {
+    let url = `wss://${env}.brytecam.com`;
+    //TODO replace for each location
     const token = process.env.TOKEN;
     //for dev by scripts
-    if (process.env.NODE_ENV == 'development') {
-      const proto = this._settings.isDevMode ? 'wss' : 'wss';
-      url = proto + '://' + window.location.host;
-    }
+    // if (process.env.NODE_ENV == 'development') {
+    //   const proto = this._settings.isDevMode ? 'wss' : 'wss';
+    //   url = proto + '://' + window.location.host;
+    // }
     try {
       let client = new Client({ url: url, token: token });
       client.url = url;
@@ -99,10 +100,10 @@ class App extends React.Component {
       settings.resolution,
       settings.bandwidth,
       settings.codec,
-      settings.isDevMode
+      settings.isDevMode      
     );
 
-    let client = this._createClient();
+    let client = this._createClient(values.env?values.env:"conf");
 
     window.onunload = async () => {
       await this._cleanUp();
@@ -152,7 +153,7 @@ class App extends React.Component {
     window.history.pushState(
       {},
       '100ms',
-      'https://' + window.location.host + '/?room=' + values.roomId
+      'https://' + window.location.host + '/?room=' + values.roomId + '&env=' + values.env
     );
     this.setState({
       login: true,
@@ -277,7 +278,8 @@ class App extends React.Component {
     resolution,
     bandwidth,
     codec,
-    isDevMode
+    isDevMode,
+    reloadPage = false,
   ) => {
     this._settings = {
       selectedAudioDevice,
@@ -288,6 +290,8 @@ class App extends React.Component {
       isDevMode,
     };
     reactLocalStorage.setObject('settings', this._settings);
+    //TODO hack to make sure settings change happens. Should be replaced by applyMediaConstraints
+    if(reloadPage) window.location.reload();
   };
 
   _onMessageReceived = data => {
