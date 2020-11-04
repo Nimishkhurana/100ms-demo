@@ -78,20 +78,24 @@ const Pinned = ({
           </div>
         ))}
         {localScreen && !isLocalScreenPinned && (
-          <SmallVideoView
-            id={id + '-screen'}
-            stream={localScreen}
-            label="Your Screen"
-            isMuted={true}
-          />
+          <div className="w-full flex flex-col">
+            <SmallVideoView
+              id={id + '-screen'}
+              stream={localScreen}
+              label="Your Screen"
+              isMuted={true}
+            />
+          </div>
         )}
         {localStream && !isLocalStreamPinned && (
-          <SmallVideoView
-            id={id + '-video'}
-            stream={localStream}
-            label={`${loginInfo.displayName} (You)`}
-            isMuted={true}
-          />
+          <div className="w-full flex flex-col">
+            <SmallVideoView
+              id={id + '-video'}
+              stream={localStream}
+              label={`${loginInfo.displayName} (You)`}
+              isMuted={true}
+            />
+          </div>
         )}
       </div>
     </div>
