@@ -187,6 +187,7 @@ class Conference extends React.Component {
           deviceId: settings.selectedVideoDevice,
           frameRate: 20,
         };
+        // @TODO: This is a kludge. Clean this up
         if (settings.resolution === 'qqvga') {
           videoOptions = {
             ...videoOptions,
@@ -226,16 +227,20 @@ class Conference extends React.Component {
     let { localScreen } = this.state;
     const { client, settings } = this.props;
     if (enabled) {
-      localScreen = await LocalStream.getDisplayMedia({
-        codec: settings.codec.toUpperCase(),
-        resolution: settings.resolution,
-        bandwidth: settings.bandwidth,
+      let screenStream = await navigator.mediaDevices.getDisplayMedia({
+        // codec: settings.codec.toUpperCase(),
+        // resolution: settings.resolution,
+        // bandwidth: settings.bandwidth,
         video: {
-          //TODO needs to be implemented in SDK
           frameRate: {
             max: 1,
           },
         },
+      });
+      localScreen = new LocalStream(screenStream, {
+        bandwidth: settings.bandwidth,
+        codec: settings.codec.toUpperCase(),
+        resolution: settings.resolution,
       });
       await client.publish(localScreen);
       let track = localScreen.getVideoTracks()[0];
