@@ -69,9 +69,6 @@ module.exports = env => {
         )
       ),
       new webpack.DefinePlugin({
-        "CONF_TOKEN": JSON.stringify(process.env.CONF_TOKEN),
-        "STAGING_TOKEN": JSON.stringify(process.env.STAGING_TOKEN),
-        "QA_IN_TOKEN": JSON.stringify(process.env.QA_IN_TOKEN),
         'process.env.FIREBASE_API_KEY': JSON.stringify(
           process.env.FIREBASE_API_KEY
         ),

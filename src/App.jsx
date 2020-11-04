@@ -22,7 +22,7 @@ import LoginForm from './LoginForm';
 import Conference from './Conference';
 import { Client } from 'brytecam-sdk-js';
 
-// This is to mimic a token service
+// @TODO Currently calls the service on runkit but need to be moved to a proper one later
 async function getToken(env) {
   const endpoint =
     'https://ms-internal-apps-token-service-klly5pwlrz1c.runkit.sh/';
