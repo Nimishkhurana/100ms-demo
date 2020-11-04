@@ -153,39 +153,6 @@ class Conference extends React.Component {
     }
   };
 
-  _setupPeerState = (peerInfo, localStream) => {
-    // Ugly hack but we need to live with it for now
-    // @TODO: Need to make this work without settimeout
-    window.setTimeout(() => {
-      this.peerState = new PeerState({
-        mid: localStream.mid,
-        uid: peerInfo.uid,
-        rid: peerInfo.rid,
-      });
-
-      console.info('New peerState created', this.peerState);
-
-      this.peerState.update({
-        audioEnabled: true,
-        videoEnabled: true,
-      });
-
-      this.peerState.onRequest(request => {
-        console.log('REQUEST', request);
-        const isMuted = this.state.audioMuted;
-        if (request.mute) {
-          if (isMuted) return;
-          console.log('Muting');
-          this.muteMediaTrack('audio', false);
-        } else {
-          if (!isMuted) return;
-          console.log('Unmuting');
-          this.muteMediaTrack('audio', true);
-        }
-      });
-    }, 500);
-  };
-
   muteMediaTrack = (type, enabled) => {
     let { localStream } = this.state;
     if (!localStream) {
