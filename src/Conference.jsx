@@ -49,6 +49,53 @@ class Conference extends React.Component {
     );
   };
 
+  updateLocalPeerState = () => {
+    console.log("Updating state");
+    this.peerState = new PeerState({
+      mid: this.state.localStream.mid,
+      uid: this.props.client.uid,
+      rid: this.props.client.rid,
+    });
+
+    console.info('New peerState created', this.peerState);
+
+    this.peerState.update({
+      audioEnabled: true,
+      videoEnabled: true,
+    });
+
+    this.peerState.onRequest(request => {
+      console.log('REQUEST', request);
+      const isMuted = this.state.audioMuted;
+      if (request.mute) {
+        if (isMuted) return;
+        console.log('Muting');
+        this.muteMediaTrack('audio', false);
+      } else {
+        if (!isMuted) return;
+        console.log('Unmuting');
+        this.muteMediaTrack('audio', true);
+      }
+    });
+  }
+
+  pollForMid = (count) => {
+    //if(this.state.localStream.mid) console.log("Count is", count);
+    if(this.state.localStream.mid) {
+      console.log("Stream Mid is", this.state.localStream.mid);
+      this.updateLocalPeerState();
+    }  
+    if(!this.state.localStream.mid) setTimeout(() => {this.pollForMid(count+1)}, 250);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+     if(!prevState.localStream && this.state.localStream)
+     {
+       this.pollForMid(0);
+       console.log("Got stream", this.state.localStream.mid);
+     }
+  }
+
   componentWillUnmount = () => {
     const { client } = this.props;
     client.off('stream-add', this._handleAddStream);
@@ -159,7 +206,7 @@ class Conference extends React.Component {
     }
   };
 
-  handleLocalStream = async (enabled, peerInfo, initializePeerState = true) => {
+  handleLocalStream = async (enabled) => {
     let { localStream } = this.state;
     const { client, settings } = this.props;
     console.log('Settings===========');
@@ -189,10 +236,7 @@ class Conference extends React.Component {
           video: videoOptions,
         });
         await client.publish(localStream);
-
-        if (initializePeerState) {
-          this._setupPeerState(peerInfo, localStream);
-        }
+        
       } else {
         if (localStream) {
           this._unpublish(localStream);

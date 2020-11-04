@@ -180,10 +180,7 @@ class App extends React.Component {
       'Connected!',
       'Welcome to the brytecam room => ' + values.roomId
     );
-    await this.conference.handleLocalStream(true, {
-      uid: this.client.uid,
-      rid: values.roomId,
-    });
+    await this.conference.handleLocalStream(true);
   };
 
   _handleLeave = async () => {

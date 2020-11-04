@@ -48,7 +48,7 @@ class MainVideoView extends React.Component {
           >
             {label || stream.info.name}
           </span>
-          <button
+          {uid && (<button
             onClick={e => {
               console.log(e, 'mute/unmute', uid);
               onRequest(uid, { mute: audioEnabled });
@@ -62,7 +62,7 @@ class MainVideoView extends React.Component {
             ) : (
               <MicrophoneOffIcon className="text-red-100 w-4 h-4" />
             )}
-          </button>
+          </button>)}
           {onPin && (
             <button
               className="w-6 h-6 bg-gray-800 bg-opacity-50 hover:bg-indigo-500 rounded flex items-center justify-center"
