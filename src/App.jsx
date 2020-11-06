@@ -113,7 +113,8 @@ class App extends React.Component {
 
     let client = await this._createClient(values.env ? values.env : 'conf');
 
-    window.onunload = async () => {
+    window.onbeforeunload = async () => {
+      alert("Tab closing!");
       await this._cleanUp();
     };
 
