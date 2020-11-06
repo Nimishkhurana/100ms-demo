@@ -23,62 +23,7 @@ class Conference extends React.Component {
       videoMuted: false,
       mode: modes.GALLERY,
       pinned: false,
-      recorders: []
     };
-  }
-
-  stopRecording = (id) => {
-    let { recorders } = this.state;
-    index = recorders.findIndex(x => x.id === id);
-    recorders[index]["mediaRec"].stop();
-  }
-
-  startRecording = (stream, id) => {
-    let recordedBlobs = [];
-    let options = { mimeType: 'video/webm' };
-    let { recorders } = this.state;
-    let mediaRecorder;
-
-    try {
-      mediaRecorder = new MediaRecorder(stream, options);
-    } catch (e) {
-      console.error('Exception while creating MediaRecorder:', e);
-      return;
-    }
-
-    let record = {
-      "id": id,
-      "mediaRec": mediaRecorder
-    };
-    this.setState({ recorders: recorders.push(record) });
-
-    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-    mediaRecorder.onstop = (event) => {
-      console.log('Recorder stopped: ', event);
-      console.log('Recorded Blobs: ', recordedBlobs);
-      const blob = new Blob(recordedBlobs, { type: 'video/webm' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = id+'.webm';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 100);
-    };
-
-    mediaRecorder.ondataavailable = (event) => {
-      console.log('handleDataAvailable', event);
-      if (event.data && event.data.size > 0) {
-        recordedBlobs.push(event.data);
-      }
-    };
-
-    mediaRecorder.start();
-    console.log('MediaRecorder started', mediaRecorder);
   }
 
   componentDidMount = () => {
@@ -103,6 +48,55 @@ class Conference extends React.Component {
       console.error
     );
   };
+
+  updateLocalPeerState = () => {
+    console.log('Updating state');
+    this.peerState = new PeerState({
+      mid: this.state.localStream.mid,
+      uid: this.props.client.uid,
+      rid: this.props.client.rid,
+    });
+
+    console.info('New peerState created', this.peerState);
+
+    this.peerState.update({
+      audioEnabled: true,
+      videoEnabled: true,
+    });
+
+    this.peerState.onRequest(request => {
+      console.log('REQUEST', request);
+      const isMuted = this.state.audioMuted;
+      if (request.mute) {
+        if (isMuted) return;
+        console.log('Muting');
+        this.muteMediaTrack('audio', false);
+      } else {
+        if (!isMuted) return;
+        console.log('Unmuting');
+        this.muteMediaTrack('audio', true);
+      }
+    });
+  };
+
+  pollForMid = count => {
+    //if(this.state.localStream.mid) console.log("Count is", count);
+    if (this.state.localStream.mid) {
+      console.log('Stream Mid is', this.state.localStream.mid);
+      this.updateLocalPeerState();
+    }
+    if (!this.state.localStream.mid)
+      setTimeout(() => {
+        this.pollForMid(count + 1);
+      }, 250);
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState.localStream && this.state.localStream) {
+      this.pollForMid(0);
+      console.log('Got stream', this.state.localStream.mid);
+    }
+  }
 
   componentWillUnmount = () => {
     const { client } = this.props;
@@ -161,39 +155,6 @@ class Conference extends React.Component {
     }
   };
 
-  _setupPeerState = (peerInfo, localStream) => {
-    // Ugly hack but we need to live with it for now
-    // @TODO: Need to make this work without settimeout
-    window.setTimeout(() => {
-      this.peerState = new PeerState({
-        mid: localStream.mid,
-        uid: peerInfo.uid,
-        rid: peerInfo.rid,
-      });
-
-      console.info('New peerState created', this.peerState);
-
-      this.peerState.update({
-        audioEnabled: true,
-        videoEnabled: true,
-      });
-
-      this.peerState.onRequest(request => {
-        console.log('REQUEST', request);
-        const isMuted = this.state.audioMuted;
-        if (request.mute) {
-          if (isMuted) return;
-          console.log('Muting');
-          this.muteMediaTrack('audio', false);
-        } else {
-          if (!isMuted) return;
-          console.log('Unmuting');
-          this.muteMediaTrack('audio', true);
-        }
-      });
-    }, 500);
-  }
-
   muteMediaTrack = (type, enabled) => {
     let { localStream } = this.state;
     if (!localStream) {
@@ -214,7 +175,7 @@ class Conference extends React.Component {
     }
   };
 
-  handleLocalStream = async (enabled, peerInfo, initializePeerState = true) => {
+  handleLocalStream = async enabled => {
     let { localStream } = this.state;
     const { client, settings } = this.props;
     console.log('Settings===========');
@@ -226,6 +187,7 @@ class Conference extends React.Component {
           deviceId: settings.selectedVideoDevice,
           frameRate: 20,
         };
+        // @TODO: This is a kludge. Clean this up
         if (settings.resolution === 'qqvga') {
           videoOptions = {
             ...videoOptions,
@@ -244,11 +206,6 @@ class Conference extends React.Component {
           video: videoOptions,
         });
         await client.publish(localStream);
-
-        if (initializePeerState) {
-          this._setupPeerState(peerInfo, localStream);
-        }
-
       } else {
         if (localStream) {
           this._unpublish(localStream);
@@ -257,7 +214,6 @@ class Conference extends React.Component {
       }
       console.log('local stream', localStream.getTracks());
       this.setState({ localStream });
-      // add recording
     } catch (e) {
       console.log('handleLocalStream error => ' + e);
       // this._notification("publish/unpublish failed!", e);
@@ -271,16 +227,20 @@ class Conference extends React.Component {
     let { localScreen } = this.state;
     const { client, settings } = this.props;
     if (enabled) {
-      localScreen = await LocalStream.getDisplayMedia({
-        codec: settings.codec.toUpperCase(),
-        resolution: settings.resolution,
-        bandwidth: settings.bandwidth,
+      let screenStream = await navigator.mediaDevices.getDisplayMedia({
+        // codec: settings.codec.toUpperCase(),
+        // resolution: settings.resolution,
+        // bandwidth: settings.bandwidth,
         video: {
-          //TODO needs to be implemented in SDK
           frameRate: {
             max: 1,
           },
         },
+      });
+      localScreen = new LocalStream(screenStream, {
+        bandwidth: settings.bandwidth,
+        codec: settings.codec.toUpperCase(),
+        resolution: settings.resolution,
       });
       await client.publish(localScreen);
       let track = localScreen.getVideoTracks()[0];
@@ -293,7 +253,10 @@ class Conference extends React.Component {
       if (localScreen) {
         this._unpublish(localScreen);
         localScreen = null;
-        if (this.state.mode === modes.PINNED && this.state.pinned === client.uid + '-screen') {
+        if (
+          this.state.mode === modes.PINNED &&
+          this.state.pinned === client.uid + '-screen'
+        ) {
           this.setState({
             mode: modes.GALLERY,
           });
@@ -301,14 +264,12 @@ class Conference extends React.Component {
       }
     }
     this.setState({ localScreen });
-    // add recording
   };
 
   _stopMediaStream = async stream => {
     let tracks = stream.getTracks();
     for (let i = 0, len = tracks.length; i < len; i++) {
       await tracks[i].stop();
-      // stop recording
     }
   };
 
@@ -318,8 +279,6 @@ class Conference extends React.Component {
     let stream = await client.subscribe(mid);
     stream.info = info;
     console.log(mid, info, stream);
-    // add recording
-    this.startRecording(stream, mid);
     streams.push({ mid: stream.mid, stream, sid: mid });
     this.setState({ streams });
     this.tuneLocalStream(streams.length);
@@ -327,8 +286,6 @@ class Conference extends React.Component {
 
   _handleRemoveStream = async stream => {
     let streams = this.state.streams;
-    // stop recording
-    this.stopRecording(stream.mid);
     streams = streams.filter(item => item.sid !== stream.mid);
     this.setState({ streams });
     this.tuneLocalStream(streams.length);
@@ -406,25 +363,25 @@ class Conference extends React.Component {
             onRequest={this._onRequest}
           />
         ) : (
-            <Gallery
-              streams={streams}
-              audioMuted={audioMuted}
-              videoMuted={videoMuted}
-              videoCount={videoCount}
-              localStream={localStream}
-              localScreen={localScreen}
-              client={client}
-              id={id}
-              loginInfo={this.props.loginInfo}
-              onPin={streamId => {
-                this.setState({
-                  mode: modes.PINNED,
-                  pinned: streamId,
-                });
-              }}
-              onRequest={this._onRequest}
-            />
-          )}
+          <Gallery
+            streams={streams}
+            audioMuted={audioMuted}
+            videoMuted={videoMuted}
+            videoCount={videoCount}
+            localStream={localStream}
+            localScreen={localScreen}
+            client={client}
+            id={id}
+            loginInfo={this.props.loginInfo}
+            onPin={streamId => {
+              this.setState({
+                mode: modes.PINNED,
+                pinned: streamId,
+              });
+            }}
+            onRequest={this._onRequest}
+          />
+        )}
         <Controls
           isMuted={this.state.audioMuted}
           isCameraOn={!this.state.videoMuted}
@@ -445,5 +402,4 @@ class Conference extends React.Component {
     );
   };
 }
-
 export default Conference;
