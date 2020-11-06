@@ -32,10 +32,10 @@ class Conference extends React.Component {
 
     if (id === "stop-all") {
       recorders.forEach(function (item) {
-        console.log("Stopping for ", item["id"]);
+        console.log("Stopping for", item["id"]);
         item["mediaRec"].stop();
-        this.setState({ recorders: [] });
       });
+      this.setState({ recorders: [] });
     }
     else {
       let index = recorders.findIndex(x => x.id === id);
@@ -122,18 +122,20 @@ class Conference extends React.Component {
     const { client } = this.props;
     client.off('stream-add', this._handleAddStream);
     client.off('stream-remove', this._handleRemoveStream);
-    this.stopRecording("stop-all");
+    // this.stopRecording("stop-all");
     this.roomStateUnsubscribe && this.roomStateUnsubscribe();
   };
 
   cleanUp = async () => {
     let { localStream, localScreen, streams } = this.state;
+    alert("Inside cleanUp");
+    this.stopRecording("stop-all");
+    alert("After stop recording");
     await this.setState({ localStream: null, localScreen: null, streams: [] });
 
     streams.map(async item => {
       await item.stream.unsubscribe();
     });
-    // this.stopRecording("stop-all");
     await this._unpublish(localStream);
     // this.peerStateUnsubscribe();
     this.peerState.delete();
@@ -266,9 +268,9 @@ handleLocalStream = async (enabled, peerInfo, initializePeerState = true) => {
 
     } else {
       if (localStream) {
+        this.stopRecording("local-stream");
         this._unpublish(localStream);
         localStream = null;
-        this.stopRecording("local-stream");
       }
     }
     console.log('local stream', localStream.getTracks());
@@ -308,9 +310,9 @@ handleScreenSharing = async enabled => {
     }
   } else {
     if (localScreen) {
+      this.stopRecording("local-screen");
       this._unpublish(localScreen);
       localScreen = null;
-      this.stopRecording("local-screen");
       if (this.state.mode === modes.PINNED && this.state.pinned === client.uid + '-screen') {
         this.setState({
           mode: modes.GALLERY,
@@ -464,5 +466,4 @@ render = () => {
   );
 };
 }
-
 export default Conference;
