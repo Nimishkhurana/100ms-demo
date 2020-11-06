@@ -23,7 +23,76 @@ class Conference extends React.Component {
       videoMuted: false,
       mode: modes.GALLERY,
       pinned: false,
+      recorders: []
     };
+  }
+
+  stopRecording = (id) => {
+    let { recorders } = this.state;
+
+    if (id === "stop-all") {
+      recorders.forEach(function (item) {
+        console.log("Stopping for ", item["id"]);
+        item["mediaRec"].stop();
+        this.setState({ recorders: [] });
+      });
+    }
+    else {
+      let index = recorders.findIndex(x => x.id === id);
+      recorders[index]["mediaRec"].stop();
+      recorders = recorders.filter(item => item.id !== id);
+      this.setState({ recorders: recorders });
+    }
+  }
+
+  startRecording = (stream, id) => {
+    let recordedBlobs = [];
+    let options = { mimeType: 'video/webm' };
+    let { recorders } = this.state;
+    let mediaRecorder;
+
+    try {
+      mediaRecorder = new MediaRecorder(stream, options);
+    } catch (e) {
+      console.error('Exception while creating MediaRecorder:', e);
+      return;
+    }
+
+    let record = {
+      "id": id,
+      "mediaRec": mediaRecorder
+    };
+
+    recorders.push(record);
+    this.setState({ recorders: recorders });
+
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+    mediaRecorder.onstop = (event) => {
+      console.log('Recorder stopped: ', event);
+      console.log('Recorded Blobs: ', recordedBlobs);
+      const blob = new Blob(recordedBlobs, { type: 'video/webm' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = id + '.webm';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    };
+
+    mediaRecorder.ondataavailable = (event) => {
+      console.log('handleDataAvailable', event);
+      if (event.data && event.data.size > 0) {
+        recordedBlobs.push(event.data);
+      }
+    };
+
+    mediaRecorder.start();
+    console.log('MediaRecorder started', mediaRecorder);
   }
 
   componentDidMount = () => {
@@ -49,12 +118,72 @@ class Conference extends React.Component {
     );
   };
 
-  updateLocalPeerState = () => {
-    console.log('Updating state');
+  componentWillUnmount = () => {
+    const { client } = this.props;
+    client.off('stream-add', this._handleAddStream);
+    client.off('stream-remove', this._handleRemoveStream);
+    this.stopRecording("stop-all");
+    this.roomStateUnsubscribe && this.roomStateUnsubscribe();
+  };
+
+  cleanUp = async () => {
+    let { localStream, localScreen, streams } = this.state;
+    await this.setState({ localStream: null, localScreen: null, streams: [] });
+
+    streams.map(async item => {
+      await item.stream.unsubscribe();
+    });
+    // this.stopRecording("stop-all");
+    await this._unpublish(localStream);
+    // this.peerStateUnsubscribe();
+    this.peerState.delete();
+  };
+
+// @TODO: Move this to utils or core lib
+tuneLocalStream = participantCount => {
+  if (!this.state.localStream) return;
+
+  const MAX_INCOMING_BITRATE = 1600;
+  const outgoing_bitrate = MAX_INCOMING_BITRATE / participantCount;
+  console.log(this.state.localStream.getVideoTracks()[0].getConstraints());
+  if (outgoing_bitrate < MAX_INCOMING_BITRATE) {
+    this.state.localStream.getVideoTracks()[0].applyConstraints({
+      ...this.state.localStream.getVideoTracks()[0].getConstraints(),
+      frameRate: 10, // Min framerate
+      // Do something more to get the bandwidth to `outgoing_bitrate`
+    });
+  } else {
+    this.state.localStream.getVideoTracks()[0].applyConstraints({
+      ...this.state.localStream.getVideoTracks()[0].getConstraints(),
+      frameRate: 20, // Reset to default
+    });
+  }
+};
+
+_notification = (message, description) => {
+  notification.info({
+    message: message,
+    description: description,
+    placement: 'bottomRight',
+  });
+};
+
+_unpublish = async stream => {
+  const { client } = this.props;
+  if (stream) {
+    await this._stopMediaStream(stream);
+    await stream.unpublish();
+  }
+};
+
+_setupPeerState = (peerInfo, localStream) => {
+  // Ugly hack but we need to live with it for now
+  // @TODO: Need to make this work without settimeout
+  window.setTimeout(() => {
     this.peerState = new PeerState({
-      mid: this.state.localStream.mid,
-      uid: this.props.client.uid,
-      rid: this.props.client.rid,
+      mid: localStream.mid,
+      uid: peerInfo.uid,
+      rid: peerInfo.rid,
     });
 
     console.info('New peerState created', this.peerState);
@@ -77,292 +206,225 @@ class Conference extends React.Component {
         this.muteMediaTrack('audio', true);
       }
     });
-  };
+  }, 500);
+}
 
-  pollForMid = count => {
-    //if(this.state.localStream.mid) console.log("Count is", count);
-    if (this.state.localStream.mid) {
-      console.log('Stream Mid is', this.state.localStream.mid);
-      this.updateLocalPeerState();
+muteMediaTrack = (type, enabled) => {
+  let { localStream } = this.state;
+  if (!localStream) {
+    return;
+  }
+  if (enabled) {
+    localStream.unmute(type);
+  } else {
+    localStream.mute(type);
+  }
+
+  if (type === 'audio') {
+    this.setState({ audioMuted: !enabled });
+    this.peerState && this.peerState.update({ audioEnabled: enabled });
+  } else if (type === 'video') {
+    this.setState({ videoMuted: !enabled });
+    this.peerState && this.peerState.update({ videoEnabled: enabled });
+  }
+};
+
+handleLocalStream = async (enabled, peerInfo, initializePeerState = true) => {
+  let { localStream } = this.state;
+  const { client, settings } = this.props;
+  console.log('Settings===========');
+  console.log(settings);
+
+  try {
+    if (enabled) {
+      let videoOptions = {
+        deviceId: settings.selectedVideoDevice,
+        frameRate: 20,
+      };
+      if (settings.resolution === 'qqvga') {
+        videoOptions = {
+          ...videoOptions,
+          ...{
+            width: { ideal: 160 },
+            height: { ideal: 90 },
+            frameRate: { ideal: 15 },
+          },
+        };
+      }
+      localStream = await LocalStream.getUserMedia({
+        codec: settings.codec.toUpperCase(),
+        resolution: settings.resolution,
+        bandwidth: settings.bandwidth,
+        audio: true,
+        video: videoOptions,
+      });
+      await client.publish(localStream);
+
+      if (initializePeerState) {
+        this._setupPeerState(peerInfo, localStream);
+      }
+
+    } else {
+      if (localStream) {
+        this._unpublish(localStream);
+        localStream = null;
+        this.stopRecording("local-stream");
+      }
     }
-    if (!this.state.localStream.mid)
-      setTimeout(() => {
-        this.pollForMid(count + 1);
-      }, 250);
-  };
+    console.log('local stream', localStream.getTracks());
+    this.setState({ localStream });
+    // add recording
+    this.startRecording(localStream, "local-stream");
+  } catch (e) {
+    console.log('handleLocalStream error => ' + e);
+    // this._notification("publish/unpublish failed!", e);
+  }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevState.localStream && this.state.localStream) {
-      this.pollForMid(0);
-      console.log('Got stream', this.state.localStream.mid);
+  //Check audio only conference
+  this.muteMediaTrack('video', this.props.localVideoEnabled);
+};
+
+handleScreenSharing = async enabled => {
+  let { localScreen } = this.state;
+  const { client, settings } = this.props;
+  if (enabled) {
+    localScreen = await LocalStream.getDisplayMedia({
+      codec: settings.codec.toUpperCase(),
+      resolution: settings.resolution,
+      bandwidth: settings.bandwidth,
+      video: {
+        //TODO needs to be implemented in SDK
+        frameRate: {
+          max: 1,
+        },
+      },
+    });
+    await client.publish(localScreen);
+    let track = localScreen.getVideoTracks()[0];
+    if (track) {
+      track.addEventListener('ended', () => {
+        this.handleScreenSharing(false);
+      });
+    }
+  } else {
+    if (localScreen) {
+      this._unpublish(localScreen);
+      localScreen = null;
+      this.stopRecording("local-screen");
+      if (this.state.mode === modes.PINNED && this.state.pinned === client.uid + '-screen') {
+        this.setState({
+          mode: modes.GALLERY,
+        });
+      }
+    }
+  }
+  this.setState({ localScreen });
+  // add recording
+  this.startRecording(localScreen, "local-screen");
+};
+
+_stopMediaStream = async stream => {
+  let tracks = stream.getTracks();
+  for (let i = 0, len = tracks.length; i < len; i++) {
+    await tracks[i].stop();
+    // stop recording
+  }
+};
+
+_handleAddStream = async (mid, info) => {
+  const { client } = this.props;
+  let streams = this.state.streams;
+  let stream = await client.subscribe(mid);
+  stream.info = info;
+  console.log(mid, info, stream);
+  // add recording
+  this.startRecording(stream, mid);
+  streams.push({ mid: stream.mid, stream, sid: mid });
+  this.setState({ streams });
+  this.tuneLocalStream(streams.length);
+};
+
+_handleRemoveStream = async stream => {
+  let streams = this.state.streams;
+  // stop recording
+  this.stopRecording(stream.mid);
+  streams = streams.filter(item => item.sid !== stream.mid);
+  this.setState({ streams });
+  this.tuneLocalStream(streams.length);
+  if (this.state.mode === modes.PINNED && this.state.pinned === stream.mid) {
+    this.setState({
+      mode: modes.GALLERY,
+    });
+  }
+};
+
+_onRequest = (uid, request) => {
+  this.peerState.setRequest(uid, request);
+};
+
+_onChangeVideoPosition = data => {
+  let id = data.id;
+  let index = data.index;
+  console.log('_onChangeVideoPosition id:' + id + '  index:' + index);
+
+  if (index == 0) {
+    return;
+  }
+
+  const streams = this.state.streams;
+  let first = 0;
+  let big = 0;
+  for (let i = 0; i < streams.length; i++) {
+    let item = streams[i];
+    if (item.mid == id) {
+      big = i;
+      break;
     }
   }
 
-  componentWillUnmount = () => {
-    const { client } = this.props;
-    client.off('stream-add', this._handleAddStream);
-    client.off('stream-remove', this._handleRemoveStream);
-    this.roomStateUnsubscribe && this.roomStateUnsubscribe();
-  };
+  let c = streams[first];
+  streams[first] = streams[big];
+  streams[big] = c;
 
-  cleanUp = async () => {
-    let { localStream, localScreen, streams } = this.state;
-    await this.setState({ localStream: null, localScreen: null, streams: [] });
+  this.setState({ streams: streams });
+};
 
-    streams.map(async item => {
-      await item.stream.unsubscribe();
-    });
+render = () => {
+  const { client } = this.props;
+  const {
+    streams,
+    localStream,
+    localScreen,
+    audioMuted,
+    videoMuted,
+  } = this.state;
+  const id = client.uid;
+  let videoCount = streams.length;
+  if (localStream) videoCount++;
+  if (localScreen) videoCount++;
 
-    await this._unpublish(localStream);
-    // this.peerStateUnsubscribe();
-    this.peerState.delete();
-  };
-
-  // @TODO: Move this to utils or core lib
-  tuneLocalStream = participantCount => {
-    if (!this.state.localStream) return;
-
-    const MAX_INCOMING_BITRATE = 1600;
-    const outgoing_bitrate = MAX_INCOMING_BITRATE / participantCount;
-    console.log(this.state.localStream.getVideoTracks()[0].getConstraints());
-    if (outgoing_bitrate < MAX_INCOMING_BITRATE) {
-      this.state.localStream.getVideoTracks()[0].applyConstraints({
-        ...this.state.localStream.getVideoTracks()[0].getConstraints(),
-        frameRate: 10, // Min framerate
-        // Do something more to get the bandwidth to `outgoing_bitrate`
-      });
-    } else {
-      this.state.localStream.getVideoTracks()[0].applyConstraints({
-        ...this.state.localStream.getVideoTracks()[0].getConstraints(),
-        frameRate: 20, // Reset to default
-      });
-    }
-  };
-
-  _notification = (message, description) => {
-    notification.info({
-      message: message,
-      description: description,
-      placement: 'bottomRight',
-    });
-  };
-
-  _unpublish = async stream => {
-    const { client } = this.props;
-    if (stream) {
-      await this._stopMediaStream(stream);
-      await stream.unpublish();
-    }
-  };
-
-  muteMediaTrack = (type, enabled) => {
-    let { localStream } = this.state;
-    if (!localStream) {
-      return;
-    }
-    if (enabled) {
-      localStream.unmute(type);
-    } else {
-      localStream.mute(type);
-    }
-
-    if (type === 'audio') {
-      this.setState({ audioMuted: !enabled });
-      this.peerState && this.peerState.update({ audioEnabled: enabled });
-    } else if (type === 'video') {
-      this.setState({ videoMuted: !enabled });
-      this.peerState && this.peerState.update({ videoEnabled: enabled });
-    }
-  };
-
-  handleLocalStream = async enabled => {
-    let { localStream } = this.state;
-    const { client, settings } = this.props;
-    console.log('Settings===========');
-    console.log(settings);
-
-    try {
-      if (enabled) {
-        let videoOptions = {
-          deviceId: settings.selectedVideoDevice,
-          frameRate: 20,
-        };
-        // @TODO: This is a kludge. Clean this up
-        if (settings.resolution === 'qqvga') {
-          videoOptions = {
-            ...videoOptions,
-            ...{
-              width: { ideal: 160 },
-              height: { ideal: 90 },
-              frameRate: { ideal: 15 },
-            },
-          };
-        }
-        localStream = await LocalStream.getUserMedia({
-          codec: settings.codec.toUpperCase(),
-          resolution: settings.resolution,
-          bandwidth: settings.bandwidth,
-          audio: true,
-          video: videoOptions,
-        });
-        await client.publish(localStream);
-      } else {
-        if (localStream) {
-          this._unpublish(localStream);
-          localStream = null;
-        }
-      }
-      console.log('local stream', localStream.getTracks());
-      this.setState({ localStream });
-    } catch (e) {
-      console.log('handleLocalStream error => ' + e);
-      // this._notification("publish/unpublish failed!", e);
-    }
-
-    //Check audio only conference
-    this.muteMediaTrack('video', this.props.localVideoEnabled);
-  };
-
-  handleScreenSharing = async enabled => {
-    let { localScreen } = this.state;
-    const { client, settings } = this.props;
-    if (enabled) {
-      let screenStream = await navigator.mediaDevices.getDisplayMedia({
-        // codec: settings.codec.toUpperCase(),
-        // resolution: settings.resolution,
-        // bandwidth: settings.bandwidth,
-        video: {
-          frameRate: {
-            max: 1,
-          },
-        },
-      });
-      localScreen = new LocalStream(screenStream, {
-        bandwidth: settings.bandwidth,
-        codec: settings.codec.toUpperCase(),
-        resolution: settings.resolution,
-      });
-      await client.publish(localScreen);
-      let track = localScreen.getVideoTracks()[0];
-      if (track) {
-        track.addEventListener('ended', () => {
-          this.handleScreenSharing(false);
-        });
-      }
-    } else {
-      if (localScreen) {
-        this._unpublish(localScreen);
-        localScreen = null;
-        if (
-          this.state.mode === modes.PINNED &&
-          this.state.pinned === client.uid + '-screen'
-        ) {
-          this.setState({
-            mode: modes.GALLERY,
-          });
-        }
-      }
-    }
-    this.setState({ localScreen });
-  };
-
-  _stopMediaStream = async stream => {
-    let tracks = stream.getTracks();
-    for (let i = 0, len = tracks.length; i < len; i++) {
-      await tracks[i].stop();
-    }
-  };
-
-  _handleAddStream = async (mid, info) => {
-    const { client } = this.props;
-    let streams = this.state.streams;
-    let stream = await client.subscribe(mid);
-    stream.info = info;
-    console.log(mid, info, stream);
-    streams.push({ mid: stream.mid, stream, sid: mid });
-    this.setState({ streams });
-    this.tuneLocalStream(streams.length);
-  };
-
-  _handleRemoveStream = async stream => {
-    let streams = this.state.streams;
-    streams = streams.filter(item => item.sid !== stream.mid);
-    this.setState({ streams });
-    this.tuneLocalStream(streams.length);
-    if (this.state.mode === modes.PINNED && this.state.pinned === stream.mid) {
-      this.setState({
-        mode: modes.GALLERY,
-      });
-    }
-  };
-
-  _onRequest = (uid, request) => {
-    this.peerState.setRequest(uid, request);
-  };
-
-  _onChangeVideoPosition = data => {
-    let id = data.id;
-    let index = data.index;
-    console.log('_onChangeVideoPosition id:' + id + '  index:' + index);
-
-    if (index == 0) {
-      return;
-    }
-
-    const streams = this.state.streams;
-    let first = 0;
-    let big = 0;
-    for (let i = 0; i < streams.length; i++) {
-      let item = streams[i];
-      if (item.mid == id) {
-        big = i;
-        break;
-      }
-    }
-
-    let c = streams[first];
-    streams[first] = streams[big];
-    streams[big] = c;
-
-    this.setState({ streams: streams });
-  };
-
-  render = () => {
-    const { client } = this.props;
-    const {
-      streams,
-      localStream,
-      localScreen,
-      audioMuted,
-      videoMuted,
-    } = this.state;
-    const id = client.uid;
-    let videoCount = streams.length;
-    if (localStream) videoCount++;
-    if (localScreen) videoCount++;
-
-    return (
-      <>
-        {this.state.mode === modes.PINNED ? (
-          <Pinned
-            streams={streams}
-            audioMuted={audioMuted}
-            videoMuted={videoMuted}
-            videoCount={videoCount}
-            localStream={localStream}
-            localScreen={localScreen}
-            client={client}
-            id={id}
-            loginInfo={this.props.loginInfo}
-            pinned={this.state.pinned}
-            onUnpin={() => {
-              this.setState({
-                mode: modes.GALLERY,
-              });
-            }}
-            onRequest={this._onRequest}
-          />
-        ) : (
+  return (
+    <>
+      {this.state.mode === modes.PINNED ? (
+        <Pinned
+          streams={streams}
+          audioMuted={audioMuted}
+          videoMuted={videoMuted}
+          videoCount={videoCount}
+          localStream={localStream}
+          localScreen={localScreen}
+          client={client}
+          id={id}
+          loginInfo={this.props.loginInfo}
+          pinned={this.state.pinned}
+          onUnpin={() => {
+            this.setState({
+              mode: modes.GALLERY,
+            });
+          }}
+          onRequest={this._onRequest}
+        />
+      ) : (
           <Gallery
             streams={streams}
             audioMuted={audioMuted}
@@ -382,24 +444,25 @@ class Conference extends React.Component {
             onRequest={this._onRequest}
           />
         )}
-        <Controls
-          isMuted={this.state.audioMuted}
-          isCameraOn={!this.state.videoMuted}
-          isScreenSharing={this.props.isScreenSharing}
-          onScreenToggle={this.props.onScreenToggle}
-          onLeave={this.props.onLeave}
-          onMicToggle={() => {
-            this.muteMediaTrack('audio', this.state.audioMuted);
-          }}
-          onCamToggle={() => {
-            this.muteMediaTrack('video', this.state.videoMuted);
-          }}
-          onChatToggle={this.props.onChatToggle}
-          isChatOpen={this.props.isChatOpen}
-          loginInfo={this.props.loginInfo}
-        />
-      </>
-    );
-  };
+      <Controls
+        isMuted={this.state.audioMuted}
+        isCameraOn={!this.state.videoMuted}
+        isScreenSharing={this.props.isScreenSharing}
+        onScreenToggle={this.props.onScreenToggle}
+        onLeave={this.props.onLeave}
+        onMicToggle={() => {
+          this.muteMediaTrack('audio', this.state.audioMuted);
+        }}
+        onCamToggle={() => {
+          this.muteMediaTrack('video', this.state.videoMuted);
+        }}
+        onChatToggle={this.props.onChatToggle}
+        isChatOpen={this.props.isChatOpen}
+        loginInfo={this.props.loginInfo}
+      />
+    </>
+  );
+};
 }
+
 export default Conference;
